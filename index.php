@@ -26,11 +26,7 @@
                 <h1 class="text-center mb-4">Lista de Productos</h1>
                 <div class="list-group">
                     <?php
-                    // Conexión a la base de datos
-                    $servername = "localhost";
-                    $username = "librepe1";
-                    $password = "qm130GT5mq";  // Reemplaza con tu contraseña de MySQL si tienes una
-                    $dbname = "librepe1_faowiki";
+                    include 'config.php';
 
                     // Crear conexión
                     $conn = new mysqli($servername, $username, $password, $dbname);
