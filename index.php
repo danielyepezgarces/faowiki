@@ -17,6 +17,18 @@
             text-decoration: none; /* Eliminar subrayado de los enlaces */
             color: #212529; /* Color de texto para los enlaces */
         }
+        footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        footer p {
+            margin: 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -100,6 +112,10 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2024 FAOWIKI - Developed by <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces" target="_blank">Danielyepezgarces</a> - FAO data used under CC BY SA</p>
+    </footer>
 
     <!-- Bootstrap JS y dependencias Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
