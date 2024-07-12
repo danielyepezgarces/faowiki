@@ -148,7 +148,7 @@
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                            <td>" . htmlspecialchars($row['Pais']) . "</td>
+                            <td>{{Bandera2|" . htmlspecialchars($row['Pais']) . "}}</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
