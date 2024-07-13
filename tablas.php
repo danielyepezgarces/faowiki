@@ -102,10 +102,9 @@ ORDER BY
         WHEN f.area_code = 5000 THEN 1
         ELSE 0
     END,
-    f.area_code;
+    p.nombre;
 ";
 
-   
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
