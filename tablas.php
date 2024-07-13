@@ -95,9 +95,17 @@ SELECT
     f.item
 FROM faowiki f
 JOIN paises p ON f.area_code = p.area_code
+LEFT JOIN (
+    SELECT 'Sudán' AS nombre, 276 AS area_code
+    UNION ALL
+    SELECT 'Sudán' AS nombre, 206 AS area_code
+    UNION ALL
+    SELECT 'Etiopía' AS nombre, 238 AS area_code
+    UNION ALL
+    SELECT 'Etiopía' AS nombre, 62 AS area_code
+) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
 WHERE f.item_code = ? 
     AND f.element_code = '5510'
-    AND (f.area_code = 276 OR f.area_code = 206 OR f.area_code = 238 OR f.area_code = 62) -- Filtrar por los códigos de área relevantes
     AND (f.area_code < 1000 OR f.area_code = 5000)
     AND f.area_code != 351
 GROUP BY 
@@ -108,6 +116,7 @@ GROUP BY
     END,
     f.item
 ORDER BY p.id;
+
 
             ";
 
