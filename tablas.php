@@ -130,23 +130,23 @@ ORDER BY p.id;
                         </thead>
                         <tbody>";
 
-                function format_value($value) {
-                    if (is_null($value) || $value === '') {
-                        return '';
-                    }
-                    $value = str_replace(',', '', $value);  // Remover comas si existen
-                    $value = floatval($value) / 1000;
-
-                    if ($value < 0.1) {
-                        return '<0.1';
-                    } elseif ($value < 1) {
-                        return number_format($value, 1, '.', ''); // Un decimal
-                    } elseif ($value >= 1 && $value < 10000) {
-                        return number_format($value, 0, '.', ''); // Sin decimales y sin separador de miles
-                    } else {
-                        return number_format($value, 0, '.', ' '); // Sin decimales, con espacio como separador de miles
-                    }
-                }
+                        function format_value($value) {
+                            if (is_null($value) || $value === '') {
+                                return '-';
+                            }
+                            $value = str_replace(',', '', $value);  // Remover comas si existen
+                            $value = floatval($value) / 1000;
+                        
+                            if ($value < 0.1) {
+                                return '<0.1';
+                            } elseif ($value < 1) {
+                                return number_format($value, 1, '.', ''); // Un decimal
+                            } elseif ($value >= 1 && $value < 10000) {
+                                return number_format($value, 0, '.', ''); // Sin decimales y sin separador de miles
+                            } else {
+                                return number_format($value, 0, '.', ' '); // Sin decimales, con espacio como separador de miles
+                            }
+                        }                        
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
@@ -165,14 +165,14 @@ ORDER BY p.id;
     htmlspecialchars(trim($row['Pais']))
 ) . "</td>
 
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '–')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '–')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
                         </tr>";
                 }
                 echo "</tbody></table>";
