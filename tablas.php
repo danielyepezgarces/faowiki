@@ -165,14 +165,14 @@ ORDER BY p.id;
     htmlspecialchars(trim($row['Pais']))
 ) . "</td>
 
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
-                            <td style='text-align:right;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
+                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
                         </tr>";
                 }
                 echo "</tbody></table>";
