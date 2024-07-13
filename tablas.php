@@ -154,7 +154,7 @@ ORDER BY p.id;
     $row['Pais'] !== 'Total' ?
     (trim($row['Pais']) === 'Bélgica-Luxemburgo' ?
         '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} ' . htmlspecialchars(trim($row['Pais'])) :
-        '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}} ' . htmlspecialchars(trim($row['Pais']))
+        '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}} '
     ) :
     htmlspecialchars(trim($row['Pais']))
 ) . "</td>
