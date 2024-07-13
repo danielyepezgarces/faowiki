@@ -96,13 +96,7 @@ WHERE f.item_code = ?
     AND f.element_code = '5510'
     AND (f.area_code < 1000 OR f.area_code = 5000)
 GROUP BY p.nombre, f.area_code, f.item
-ORDER BY 
-    p.nombre,
-    CASE 
-        WHEN f.area_code = 5000 THEN 1
-        ELSE 0
-    END,
-    p.nombre;
+ORDER BY p.id;
 ";
 
 
