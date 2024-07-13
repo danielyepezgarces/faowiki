@@ -155,7 +155,7 @@ ORDER BY p.id;
     (trim($row['Pais']) === 'Bélgica-Luxemburgo' ?
         '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
         (trim($row['Pais']) === 'República Democrática Popular de Etiopía' ?
-            '{{Bandera|Etiopía|1975-estado}} ' . htmlspecialchars(trim($row['Pais'])) :
+            '{{Bandera|Etiopía|1975-estado}} [[República Democrática Popular de Etiopía|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
             '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}}'
         )
     ) :
