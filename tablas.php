@@ -115,7 +115,14 @@ GROUP BY
         ELSE p.nombre
     END,
     f.item
-ORDER BY p.id;
+ORDER BY 
+    CASE WHEN p.id = 212 THEN 1 ELSE 0 END,  -- Pone p.id 212 al final
+    CASE 
+        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+        ELSE p.nombre
+    END;
+
 
 
             ";
