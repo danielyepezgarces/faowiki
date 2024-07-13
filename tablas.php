@@ -77,33 +77,34 @@
 
         <div class="table-container">
             <?php
-            $sql = "
-            SELECT 
-                p.nombre AS Pais,
-                f.area_code AS 'Area Code',
-                MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
-                MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
-                MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
-                MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
-                MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
-                MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
-                MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
-                MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-                f.item
-            FROM faowiki f
-            JOIN paises p ON f.area_code = p.area_code
-            WHERE f.item_code = ? 
-                AND f.element_code = '5510'
-                AND f.area_code < 1000
-                OR f.area_code = 5000
-            GROUP BY p.nombre, f.area_code, f.item
-            ORDER BY 
-                CASE 
-                    WHEN f.area_code = 5000 THEN 1
-                    ELSE 0
-                END,
-                p.nombre;
-        ";        
+$sql = "
+SELECT 
+    p.nombre AS Pais,
+    f.area_code AS 'Area Code',
+    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
+    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
+    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
+    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
+    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
+    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
+    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
+    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
+    f.item
+FROM faowiki f
+JOIN paises p ON f.area_code = p.area_code
+WHERE f.item_code = ? 
+    AND f.element_code = '5510'
+    AND (f.area_code < 1000 OR f.area_code = 5000)
+GROUP BY p.nombre, f.area_code, f.item
+ORDER BY 
+    p.nombre,
+    CASE 
+        WHEN f.area_code = 5000 THEN 1
+        ELSE 0
+    END,
+    f.area_code;
+";
+   
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
