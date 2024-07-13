@@ -95,10 +95,10 @@ JOIN paises p ON f.area_code = p.area_code
 WHERE f.item_code = ? 
     AND f.element_code = '5510'
     AND (f.area_code < 1000 OR f.area_code = 5000)
+    AND f.area_code != 41
 GROUP BY p.nombre, f.area_code, f.item
 ORDER BY p.id;
 ";
-
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
