@@ -150,7 +150,7 @@ ORDER BY p.id;
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                            <td>{{Bandera2|" . htmlspecialchars($row['Pais']) . "}}</td>
+                            <td>" . ($row['Pais'] !== 'Total' ? '{{Bandera2|' : '') . htmlspecialchars(trim($row['Pais'])) . ($row['Pais'] !== 'Total' ? '}}' : '') . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
