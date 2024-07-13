@@ -150,9 +150,9 @@ ORDER BY p.id;
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                    <td>" . (
+<td>" . (
     $row['Pais'] !== 'Total' ?
-    str_replace('-', '}}{{Bandera|', htmlspecialchars(trim($row['Pais']))) . '}} {{Bandera|' . htmlspecialchars(trim($row['Pais'])) :
+    str_replace('-', '}}{{Bandera|', htmlspecialchars(trim($row['Pais']))) . '}} ' . htmlspecialchars(trim($row['Pais'])) :
     htmlspecialchars(trim($row['Pais']))
 ) . "</td>
 
