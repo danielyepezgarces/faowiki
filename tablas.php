@@ -77,28 +77,38 @@
 
         <div class="table-container">
             <?php
-$sql = "
-SELECT 
-    p.nombre AS Pais,
-    f.area_code AS 'Area Code',
-    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
-    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
-    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
-    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
-    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
-    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
-    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
-    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-    f.item
-FROM faowiki f
-JOIN paises p ON f.area_code = p.area_code
-WHERE f.item_code = ? 
-    AND f.element_code = '5510'
-    AND (f.area_code < 1000 OR f.area_code = 5000)
-    AND f.area_code != 351
-GROUP BY p.nombre, f.area_code, f.item
-ORDER BY p.id;
-";
+            $sql = "
+                SELECT 
+                    CASE 
+                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                        ELSE p.nombre
+                    END AS Pais,
+                    f.area_code AS 'Area Code',
+                    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
+                    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
+                    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
+                    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
+                    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
+                    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
+                    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
+                    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
+                    f.item
+                FROM faowiki f
+                JOIN paises p ON f.area_code = p.area_code
+                WHERE f.item_code = ? 
+                    AND f.element_code = '5510'
+                    AND (f.area_code < 1000 OR f.area_code = 5000)
+                    AND f.area_code != 351
+                GROUP BY 
+                    CASE 
+                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                        ELSE p.nombre
+                    END,
+                    f.area_code, f.item
+                ORDER BY p.id;
+            ";
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
@@ -150,29 +160,29 @@ ORDER BY p.id;
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-                    <td>" . (
-    $row['Pais'] !== 'Total' ?
-    (trim($row['Pais']) === 'Bélgica-Luxemburgo' ?
-        '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
-        (trim($row['Pais']) === 'República Democrática Popular de Etiopía' ?
-            '{{Bandera|Etiopía|1975-estado}} [[República Democrática Popular de Etiopía|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
-            (trim($row['Pais']) === 'República Democrática de Sudán' ?
-                '{{Bandera|Sudán}} [[República Democrática de Sudán|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
-                '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}}'
-            )
-        )
-    ) :
-    htmlspecialchars(trim($row['Pais']))
-) . "</td>
+                            <td>";
 
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
-                        <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
+                    switch ($row['Pais']) {
+                        case 'Bélgica-Luxemburgo':
+                            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais'])) . ']]';
+                            break;
+                        case 'Total':
+                            echo htmlspecialchars(trim($row['Pais']));
+                            break;
+                        default:
+                            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}}';
+                            break;
+                    }
+
+                    echo "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
+                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
                         </tr>";
                 }
                 echo "</tbody></table>";
