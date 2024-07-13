@@ -78,13 +78,12 @@
         <div class="table-container">
             <?php
             $sql = "
-            SELECT 
+SELECT 
     CASE 
         WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
         WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
         ELSE p.nombre
     END AS Pais,
-    f.area_code AS 'Area Code',
     MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
     MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
     MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
@@ -98,7 +97,7 @@ FROM faowiki f
 JOIN paises p ON f.area_code = p.area_code
 WHERE f.item_code = ? 
     AND f.element_code = '5510'
-    AND (f.area_code = 276 OR f.area_code = 206)  -- Aquí incluye los códigos de área relevantes para Sudán y Sudán (former)
+    AND (f.area_code = 276 OR f.area_code = 206 OR f.area_code = 238 OR f.area_code = 62) -- Filtrar por los códigos de área relevantes
     AND (f.area_code < 1000 OR f.area_code = 5000)
     AND f.area_code != 351
 GROUP BY 
@@ -107,7 +106,7 @@ GROUP BY
         WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
         ELSE p.nombre
     END,
-    f.area_code, f.item
+    f.item
 ORDER BY p.id;
 
             ";
