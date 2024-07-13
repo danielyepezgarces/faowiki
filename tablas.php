@@ -104,6 +104,7 @@ ORDER BY
     END,
     f.area_code;
 ";
+
    
 
             $stmt = $conn->prepare($sql);
