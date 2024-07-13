@@ -150,13 +150,12 @@ ORDER BY p.id;
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
-<td>" . (
-    $row['Pais'] !== 'Total' && $row['Pais'] !== 'Bélgica-Luxemburgo' ?
-    '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}}' :
-    ($row['Pais'] === 'Bélgica-Luxemburgo' ?
-    '{{Bandera|' . htmlspecialchars(trim($row['Pais'])) . '}}' :
-    htmlspecialchars(trim($row['Pais'])))
+                    <td>" . (
+    $row['Pais'] !== 'Total' ?
+    str_replace('-', '}}{{Bandera|', htmlspecialchars(trim($row['Pais']))) . '}} {{Bandera|' . htmlspecialchars(trim($row['Pais'])) :
+    htmlspecialchars(trim($row['Pais']))
 ) . "</td>
+
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
                             <td style='text-align:right;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
