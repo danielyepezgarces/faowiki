@@ -153,7 +153,7 @@ ORDER BY p.id;
 <td>" . (
     $row['Pais'] !== 'Total' ?
     (trim($row['Pais']) === 'Bélgica-Luxemburgo' ?
-        '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} ' . htmlspecialchars(trim($row['Pais'])) :
+        '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais'])) . ']]' :
         '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}} '
     ) :
     htmlspecialchars(trim($row['Pais']))
