@@ -204,7 +204,8 @@ ORDER BY
                 }
                 echo "</tbody></table>";
             } else {
-                echo "<p>No se encontraron resultados para el Item Code: " . htmlspecialchars($item_code) . "</p>";
+                http_response_code(204);
+                echo "<p>No se encontraron resultados para el Item: " . htmlspecialchars($item_code) . "</p>";
             }
 
             $stmt->close();
