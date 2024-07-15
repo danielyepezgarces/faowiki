@@ -122,10 +122,7 @@ ORDER BY
         WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
         ELSE p.nombre
     END;
-
-
-
-            ";
+";
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
@@ -157,23 +154,23 @@ ORDER BY
                         </thead>
                         <tbody>";
 
-                        function format_value($value) {
-                            if (is_null($value) || $value === '') {
-                                return '-';
-                            }
-                            $value = str_replace(',', '', $value);  // Remover comas si existen
-                            $value = floatval($value) / 1000;
-                        
-                            if ($value < 0.1) {
-                                return '<0.1';
-                            } elseif ($value < 1) {
-                                return number_format($value, 1, '.', ''); // Un decimal
-                            } elseif ($value >= 1 && $value < 10000) {
-                                return number_format($value, 0, '.', ''); // Sin decimales y sin separador de miles
-                            } else {
-                                return number_format($value, 0, '.', ' '); // Sin decimales, con espacio como separador de miles
-                            }
-                        }                        
+                function format_value($value) {
+                    if (is_null($value) || $value === '') {
+                        return '-';
+                    }
+                    $value = str_replace(',', '', $value);  // Remover comas si existen
+                    $value = floatval($value) / 1000;
+
+                    if ($value < 0.1) {
+                        return '<0.1';
+                    } elseif ($value < 1) {
+                        return number_format($value, 1, '.', ''); // Un decimal
+                    } elseif ($value >= 1 && $value < 10000) {
+                        return number_format($value, 0, '.', ''); // Sin decimales y sin separador de miles
+                    } else {
+                        return number_format($value, 0, '.', ' '); // Sin decimales, con espacio como separador de miles
+                    }
+                }
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
