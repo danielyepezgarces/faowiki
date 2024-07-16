@@ -9,9 +9,14 @@ $categoria = $_GET['categoria'] ?? '';
 
 // Mapeo de categorías basado en etiquetas o códigos
 $categoria_map = [
+    '5510' => ["Production Quantity", "5510"],
+    '5312' => ["Area harvested", "5312"],
+    '5419' => ["Yield", "5419"],
+    '5111' => ["Stocks", "5111"],
+    '5320' => ["Producing Animals/Slaughtered", "5320"],
+    'production' => ["Production Quantity", "5510"],
     'area' => ["Area harvested", "5312"],
     'yield' => ["Yield", "5419"],
-    'production' => ["Production Quantity", "5510"],
     'stocks' => ["Stocks", "5111"],
     'animals' => ["Producing Animals/Slaughtered", "5320"]
 ];
@@ -40,9 +45,9 @@ if ($conn->connect_error) {
 // Consulta SQL para obtener datos según la categoría
 $sql = "SELECT wikipedia_page, wikidata_item, item_code, item_name AS product_name, `update` AS update_required 
         FROM productos 
-        WHERE label = ? OR code = ?";
+        WHERE categoria = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $label, $code);
+$stmt->bind_param("s", $code);
 $stmt->execute();
 $result = $stmt->get_result();
 
