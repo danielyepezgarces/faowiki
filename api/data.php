@@ -16,7 +16,7 @@ if ($conn->connect_error) {
 }
 
 // Consulta SQL para obtener datos según la categoría
-$sql = "SELECT wikipedia_page, wikidata_item, item_code, item_name AS product_name, `update` AS update_required 
+$sql = "SELECT wikipedia_page, wikidata_item, item_code, item_name AS product_name, update_flag AS update_required 
         FROM productos 
         WHERE categoria = ?";
 $stmt = $conn->prepare($sql);
