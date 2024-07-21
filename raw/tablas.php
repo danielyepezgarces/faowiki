@@ -64,20 +64,15 @@ function htmlTableToMediaWiki($htmlTable) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = ltrim($cell->textContent); // Elimina espacios en blanco al inicio
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
-                if ($sortValue) {
-                    // Divide el valor del parámetro en dos partes
-                    $sortParts = explode('.', $sortValue);
-                    $sortValuePart1 = $sortParts[0];
-                    $sortValuePart2 = isset($sortParts[1]) ? $sortParts[1] : '';
-                    $sortAttribute = "data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"";
-                } else {
-                    $sortAttribute = "";
-                }
+                $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
+
+                // Si el contenido de la celda contiene un carácter especial como '&lt;', reemplazarlo por su equivalente HTML
+                $cellText = htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
                 if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . ($sortAttribute ? $sortAttribute . " " : "") . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
+                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                 } elseif ($cell->tagName === 'td') {
-                    $mediaWikiTable .= "| " . ($sortAttribute ? $sortAttribute . " " : "") . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
+                    $mediaWikiTable .= "| " . $sortAttribute . " " . $cellText . "\n";
                 }
             }
         }
@@ -100,9 +95,6 @@ if ($itemCode) {
     if ($htmlContent) {
         // Extract the first table from the HTML content
         $htmlTable = extractFirstTable($htmlContent);
-
-        // Debug: Output the HTML table for verification
-        // echo "<pre>" . htmlspecialchars($htmlTable) . "</pre>";
 
         // Convert the HTML table to MediaWiki format
         $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
