@@ -1,58 +1,56 @@
 <?php
-function getHtmlTableFromUrl($url) {
-    // Initialize cURL session
-    $ch = curl_init();
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    // Set the URL and other options
+function getHtmlTableFromUrl($url) {
+    $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects if any
-
-    // Execute cURL session and get the HTML content
     $htmlContent = curl_exec($ch);
 
-    // Check for cURL errors
     if (curl_errno($ch)) {
         echo 'cURL error: ' . curl_error($ch);
+        curl_close($ch);
         return null;
     }
 
-    // Close cURL session
     curl_close($ch);
-
     return $htmlContent;
 }
 
 function extractFirstTable($htmlContent) {
-    // Load the HTML content into a DOMDocument
     $dom = new DOMDocument;
     @$dom->loadHTML($htmlContent);
 
-    // Extract the first table element
+    // Debug: Output the full HTML content
+    // echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
+
     $table = $dom->getElementsByTagName('table')->item(0);
 
     if ($table) {
-        // Save the table as a string
         return $dom->saveHTML($table);
     } else {
-        // Return an error message if no table is found
         return '<p>No table found in the HTML content.</p>';
     }
 }
 
 function htmlTableToMediaWiki($htmlTable) {
-    // Load the HTML table into a DOMDocument
     $dom = new DOMDocument;
     @$dom->loadHTML($htmlTable);
-    
-    // Initialize an empty MediaWiki table string
+
     $mediaWikiTable = "{| class=\"wikitable\"\n";
 
-    // Loop through table rows
-    foreach ($dom->getElementsByTagName('tr') as $row) {
+    $rows = $dom->getElementsByTagName('tr');
+    if ($rows->length === 0) {
+        return "<p>No rows found in the HTML table.</p>";
+    }
+
+    foreach ($rows as $row) {
         $mediaWikiTable .= "|-\n";
-        
-        // Loop through table cells
+
         foreach ($row->childNodes as $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
@@ -65,9 +63,7 @@ function htmlTableToMediaWiki($htmlTable) {
         }
     }
 
-    // Close the MediaWiki table
     $mediaWikiTable .= "|}";
-
     return $mediaWikiTable;
 }
 
@@ -85,9 +81,11 @@ if ($itemCode) {
         // Extract the first table from the HTML content
         $htmlTable = extractFirstTable($htmlContent);
 
+        // Debug: Output the HTML table for verification
+        // echo "<pre>" . htmlspecialchars($htmlTable) . "</pre>";
+
         // Convert the HTML table to MediaWiki format
         $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
-
         echo $mediaWikiTable;
     } else {
         echo "Failed to retrieve HTML content from the URL.";
