@@ -1,4 +1,5 @@
 <?php
+<?php
 function getHtmlTableFromUrl($url) {
     // Initialize cURL session
     $ch = curl_init();
@@ -6,9 +7,16 @@ function getHtmlTableFromUrl($url) {
     // Set the URL and other options
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects if any
 
     // Execute cURL session and get the HTML content
     $htmlContent = curl_exec($ch);
+
+    // Check for cURL errors
+    if (curl_errno($ch)) {
+        echo 'cURL error: ' . curl_error($ch);
+        return null;
+    }
 
     // Close cURL session
     curl_close($ch);
@@ -24,10 +32,13 @@ function extractFirstTable($htmlContent) {
     // Extract the first table element
     $table = $dom->getElementsByTagName('table')->item(0);
 
-    // Save the table as a string
-    $tableHtml = $dom->saveHTML($table);
-
-    return $tableHtml;
+    if ($table) {
+        // Save the table as a string
+        return $dom->saveHTML($table);
+    } else {
+        // Return an error message if no table is found
+        return '<p>No table found in the HTML content.</p>';
+    }
 }
 
 function htmlTableToMediaWiki($htmlTable) {
@@ -66,18 +77,23 @@ $itemCode = isset($_GET['item_code']) ? $_GET['item_code'] : '';
 
 if ($itemCode) {
     // Construct the URL with the item_code
-    $url = "https://faowiki.danielyepezgarces.com.co/tablas.php?item_code=$itemCode";
+    $url = "https://faowiki.toolforge.org/tablas.php?item_code=$itemCode";
 
     // Get the HTML content from the URL
     $htmlContent = getHtmlTableFromUrl($url);
 
-    // Extract the first table from the HTML content
-    $htmlTable = extractFirstTable($htmlContent);
+    if ($htmlContent) {
+        // Extract the first table from the HTML content
+        $htmlTable = extractFirstTable($htmlContent);
 
-    // Convert the HTML table to MediaWiki format
-    $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
+        // Convert the HTML table to MediaWiki format
+        $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
 
-    echo $mediaWikiTable;
+        echo $mediaWikiTable;
+    } else {
+        echo "Failed to retrieve HTML content from the URL.";
+    }
 } else {
     echo "item_code parameter is missing in the URL.";
 }
+?>
