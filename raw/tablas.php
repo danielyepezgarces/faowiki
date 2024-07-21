@@ -1,9 +1,4 @@
 <?php
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Set UTF-8 encoding for the output
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -42,9 +37,6 @@ function extractFirstTable($htmlContent) {
     $dom = new DOMDocument;
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent); // Force UTF-8
 
-    // Debug: Output the full HTML content
-    // echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
-
     $tables = $dom->getElementsByTagName('table');
     if ($tables->length > 0) {
         $table = $tables->item(0);
@@ -58,7 +50,7 @@ function htmlTableToMediaWiki($htmlTable) {
     $dom = new DOMDocument;
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlTable); // Force UTF-8
 
-    $mediaWikiTable = "{| class=\"wikitable\"\n";
+    $mediaWikiTable = "{| class=\"wikitable sortable\"\n"; // Add sortable class
 
     $rows = $dom->getElementsByTagName('tr');
     if ($rows->length === 0) {
@@ -71,10 +63,13 @@ function htmlTableToMediaWiki($htmlTable) {
         foreach ($row->childNodes as $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
+                $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
+                $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
+
                 if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
+                    $mediaWikiTable .= "! " . ($sortAttribute ? $sortAttribute . " " : "") . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
                 } elseif ($cell->tagName === 'td') {
-                    $mediaWikiTable .= "| " . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
+                    $mediaWikiTable .= "| " . ($sortAttribute ? $sortAttribute . " " : "") . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
                 }
             }
         }
