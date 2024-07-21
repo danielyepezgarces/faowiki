@@ -32,7 +32,7 @@
     $stmt_name->fetch();
     $stmt_name->close();
 
-    $page_title = "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name)) . " | FAOWIKI";
+    $page_title = "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8') . " | FAOWIKI";
     echo "<title>$page_title</title>";
     ?>
 
@@ -73,7 +73,7 @@
 </head>
 <body>
     <div class="content">
-        <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name)); ?></h1>
+        <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
 
         <div class="table-container">
             <?php
@@ -126,7 +126,7 @@ ORDER BY
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
-                die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error));
+                die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
             }
 
             $stmt->bind_param("s", $item_code);
@@ -134,7 +134,7 @@ ORDER BY
             $result = $stmt->get_result();
 
             if ($result === false) {
-                die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error));
+                die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8'));
             }
 
             if ($result->num_rows > 0) {
@@ -156,19 +156,19 @@ ORDER BY
 
                 function format_value($value) {
                     if (is_null($value) || $value === '') {
-                        return '-';
+                        return ['value' => '-', 'sort' => null];
                     }
                     $value = str_replace(',', '', $value);  // Remover comas si existen
                     $value = floatval($value) / 1000;
 
                     if ($value < 0.1) {
-                        return '<0.1';
+                        return ['value' => '<0.1', 'sort' => '0.01'];
                     } elseif ($value < 1) {
-                        return number_format($value, 1, '.', ''); // Un decimal
+                        return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
                     } elseif ($value >= 1 && $value < 10000) {
-                        return number_format($value, 0, '.', ''); // Sin decimales y sin separador de miles
+                        return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
                     } else {
-                        return number_format($value, 0, '.', ' '); // Sin decimales, con espacio como separador de miles
+                        return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
                     }
                 }
 
@@ -178,31 +178,31 @@ ORDER BY
 
                     switch ($row['Pais']) {
                         case 'Bélgica-Luxemburgo':
-                            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais'])) . ']]';
+                            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
                             break;
                         case 'Total':
-                            echo htmlspecialchars(trim($row['Pais']));
+                            echo htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8');
                             break;
                         default:
-                            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais'])) . '}}';
+                            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
                             break;
                     }
 
-                    echo "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1961'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1970'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1980'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['1990'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2000'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2010'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2020'] ?? '')) . "</td>
-                            <td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars(format_value($row['2022'] ?? '')) . "</td>
-                        </tr>";
+                    echo "</td>";
+
+                    $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
+                    foreach ($years as $year) {
+                        $formatted_value = format_value($row[$year] ?? '');
+                        $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
+                        echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+                    }
+
+                    echo "</tr>";
                 }
                 echo "</tbody></table>";
             } else {
                 http_response_code(204);
-                echo "<p>No se encontraron resultados para el Item: " . htmlspecialchars($item_code) . "</p>";
+                echo "<p>No se encontraron resultados para el Item: " . htmlspecialchars($item_code, ENT_QUOTES, 'UTF-8') . "</p>";
             }
 
             $stmt->close();
@@ -212,11 +212,10 @@ ORDER BY
     </div>
 
     <footer>
-        <p>&copy; 2024 FAOWIKI - Developed by <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces" target="_blank">Danielyepezgarces</a> - FAO data used under CC BY SA</p>
+        <p>&copy; 2024 FAOWIKI - Desarrollado por <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces">Danielyepezgarces</a> - Datos de la FAO bajo <a href="https://creativecommons.org/licenses/by-sa/3.0/es/">CC BY SA</a></p>
     </footer>
 
-    <!-- Bootstrap JS y dependencias Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
