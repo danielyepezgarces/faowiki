@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^api/qcl/production$ /api/data.php?categoria=5510 [L,QSA]
