@@ -64,7 +64,15 @@ function htmlTableToMediaWiki($htmlTable) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = ltrim($cell->textContent); // Elimina espacios en blanco al inicio
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
-                $sortAttribute = $sortValue ? "data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
+                if ($sortValue) {
+                    // Divide el valor del parámetro en dos partes
+                    $sortParts = explode('.', $sortValue);
+                    $sortValuePart1 = $sortParts[0];
+                    $sortValuePart2 = isset($sortParts[1]) ? $sortParts[1] : '';
+                    $sortAttribute = "data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"";
+                } else {
+                    $sortAttribute = "";
+                }
 
                 if ($cell->tagName === 'th') {
                     $mediaWikiTable .= "! " . ($sortAttribute ? $sortAttribute . " " : "") . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
