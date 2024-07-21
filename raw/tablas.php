@@ -1,8 +1,7 @@
 <?php
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+// Set UTF-8 encoding for the output
+header('Content-Type: text/plain; charset=utf-8');
 
 function getHtmlTableFromUrl($url) {
     $ch = curl_init();
@@ -59,9 +58,9 @@ function htmlTableToMediaWiki($htmlTable) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! $cellText\n";
+                    $mediaWikiTable .= "! " . htmlspecialchars($cellText) . "\n";
                 } elseif ($cell->tagName === 'td') {
-                    $mediaWikiTable .= "| $cellText\n";
+                    $mediaWikiTable .= "| " . htmlspecialchars($cellText) . "\n";
                 }
             }
         }
