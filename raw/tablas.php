@@ -1,5 +1,4 @@
 <?php
-<?php
 function getHtmlTableFromUrl($url) {
     // Initialize cURL session
     $ch = curl_init();
