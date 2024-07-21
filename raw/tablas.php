@@ -9,6 +9,10 @@ function getHtmlTableFromUrl($url) {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects if any
+    
+    // Set a User-Agent to mimic a request from a web browser
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    
     $htmlContent = curl_exec($ch);
 
     if (curl_errno($ch)) {
@@ -26,11 +30,11 @@ function extractFirstTable($htmlContent) {
     @$dom->loadHTML($htmlContent);
 
     // Debug: Output the full HTML content
-    echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
+    // echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
 
-    $table = $dom->getElementsByTagName('table')->item(0);
-
-    if ($table) {
+    $tables = $dom->getElementsByTagName('table');
+    if ($tables->length > 0) {
+        $table = $tables->item(0);
         return $dom->saveHTML($table);
     } else {
         return '<p>No table found in the HTML content.</p>';
