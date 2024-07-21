@@ -26,7 +26,7 @@ function extractFirstTable($htmlContent) {
     @$dom->loadHTML($htmlContent);
 
     // Debug: Output the full HTML content
-    // echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
+    echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
 
     $table = $dom->getElementsByTagName('table')->item(0);
 
