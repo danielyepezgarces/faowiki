@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Set UTF-8 encoding for the output
 header('Content-Type: text/plain; charset=utf-8');
@@ -12,6 +16,10 @@ function getHtmlTableFromUrl($url) {
     // Set a User-Agent to mimic a request from a web browser
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
     
+    // Ensure the response is returned as UTF-8
+    curl_setopt($ch, CURLOPT_ENCODING, ''); // Allows gzip encoding
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept-Charset: utf-8'));
+    
     $htmlContent = curl_exec($ch);
 
     if (curl_errno($ch)) {
@@ -21,12 +29,18 @@ function getHtmlTableFromUrl($url) {
     }
 
     curl_close($ch);
+
+    // Convert the HTML content to UTF-8 if it's not already
+    if (!mb_check_encoding($htmlContent, 'UTF-8')) {
+        $htmlContent = mb_convert_encoding($htmlContent, 'UTF-8', 'auto');
+    }
+
     return $htmlContent;
 }
 
 function extractFirstTable($htmlContent) {
     $dom = new DOMDocument;
-    @$dom->loadHTML($htmlContent);
+    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent); // Force UTF-8
 
     // Debug: Output the full HTML content
     // echo "<pre>" . htmlspecialchars($htmlContent) . "</pre>";
@@ -42,7 +56,7 @@ function extractFirstTable($htmlContent) {
 
 function htmlTableToMediaWiki($htmlTable) {
     $dom = new DOMDocument;
-    @$dom->loadHTML($htmlTable);
+    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlTable); // Force UTF-8
 
     $mediaWikiTable = "{| class=\"wikitable\"\n";
 
@@ -58,9 +72,9 @@ function htmlTableToMediaWiki($htmlTable) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . htmlspecialchars($cellText) . "\n";
+                    $mediaWikiTable .= "! " . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
                 } elseif ($cell->tagName === 'td') {
-                    $mediaWikiTable .= "| " . htmlspecialchars($cellText) . "\n";
+                    $mediaWikiTable .= "| " . htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n";
                 }
             }
         }
