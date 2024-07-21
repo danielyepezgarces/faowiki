@@ -62,17 +62,20 @@ function htmlTableToMediaWiki($htmlTable) {
 
         foreach ($row->childNodes as $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
-                $cellText = ltrim($cell->textContent); // Elimina espacios en blanco al inicio
+                $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
                 $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
 
-                // Si el contenido de la celda contiene un carácter especial como '&lt;', reemplazarlo por su equivalente HTML
-                $cellText = htmlspecialchars($cellText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-
+                // Formato para separar el atributo y el contenido de la celda
                 if ($cell->tagName === 'th') {
                     $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                 } elseif ($cell->tagName === 'td') {
-                    $mediaWikiTable .= "| " . $sortAttribute . " " . $cellText . "\n";
+                    // Solo agregar el atributo si hay un valor de `data-sort-value`
+                    if ($sortAttribute) {
+                        $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                    } else {
+                        $mediaWikiTable .= "| " . $cellText . "\n";
+                    }
                 }
             }
         }
