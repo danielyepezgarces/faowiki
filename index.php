@@ -74,6 +74,7 @@
                             $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
                             $wikidata_item = htmlspecialchars($row['wikidata_item']);
                             
+                            // Asegurarse de que el nombre de la página de Wikipedia esté correctamente codificado
                             $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
