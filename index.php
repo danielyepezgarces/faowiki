@@ -73,8 +73,8 @@
                             $item_name = htmlspecialchars($row['item_name']);
                             $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
                             $wikidata_item = htmlspecialchars($row['wikidata_item']);
-                            
-                            // Verificar si wikipedia_page no está vacío
+
+                            // Construir URL de Wikipedia, asegurándose de que el prefijo esté incluido
                             if (!empty($wikipedia_page)) {
                                 $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
                                 $wikipedia_link = '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>';
@@ -82,6 +82,7 @@
                                 $wikipedia_link = 'Wikipedia (No disponible)';
                             }
 
+                            // Construir URL de Wikidata
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
 
