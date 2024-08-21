@@ -69,10 +69,10 @@
                     if ($result->num_rows > 0) {
                         // Mostrar cada nombre de producto como un enlace a tablas.php con el item_code
                         while ($row = $result->fetch_assoc()) {
-                            $item_code = htmlspecialchars($row['item_code']);
-                            $item_name = htmlspecialchars($row['item_name']);
-                            $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
-                            $wikidata_item = htmlspecialchars($row['wikidata_item']);
+                            $item_code = $row['item_code'];
+                            $item_name = $row['item_name'];
+                            $wikipedia_page = $row['wikipedia_page'];
+                            $wikidata_item = $row['wikidata_item'];
 
                             // Construir URL de Wikipedia
                             $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
@@ -84,7 +84,7 @@
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
 
                             // Enlace al detalle del producto
-                            $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
+                            $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . urlencode($item_code);
 
                             echo '<div class="product-item">';
                             echo '<h4><a href="' . $product_url . '">' . $item_name . '</a></h4>';
@@ -96,6 +96,8 @@
                         echo '<div class="product-item">No hay productos disponibles.</div>';
                     }
 
+                    // Cerrar conexión
+                    $conn->close();
                     ?>
                 </div>
                 <nav aria-label="Navegación de páginas">
@@ -117,9 +119,6 @@
                         for ($i = 1; $i <= $total_pages; $i++) {
                             echo '<li class="page-item ' . ($page == $i ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
                         }
-
-                        // Cerrar conexión
-                        $conn->close();
                         ?>
                     </ul>
                 </nav>
@@ -136,3 +135,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
+
