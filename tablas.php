@@ -80,7 +80,7 @@
 
         <div class="table-container">
             <?php
-            // Consulta para obtener los datos de los países
+            // Consulta para obtener los datos de los países (sin incluir "Total")
             $sql = "
             WITH RankedData AS (
                 SELECT 
@@ -215,9 +215,6 @@
                     case 'Bélgica-Luxemburgo':
                         echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
                         break;
-                    case 'Total':
-                        // No mostrar 'Total' aquí, se manejará en el pie de tabla
-                        continue 2; // Saltar al siguiente registro
                     default:
                         echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
                         break;
