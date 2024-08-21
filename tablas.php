@@ -82,46 +82,43 @@
             <?php
             // Consulta para obtener los datos de los países (sin incluir "Total")
             $sql = "
-            WITH RankedData AS (
-                SELECT 
-                    CASE 
-                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-                        ELSE p.nombre
-                    END AS Pais,
-                    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
-                    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
-                    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
-                    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
-                    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
-                    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
-                    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
-                    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-                    ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
-                FROM faowiki f
-                JOIN paises p ON f.area_code = p.area_code
-                LEFT JOIN (
-                    SELECT 'Sudán' AS nombre, 276 AS area_code
-                    UNION ALL
-                    SELECT 'Sudán' AS nombre, 206 AS area_code
-                    UNION ALL
-                    SELECT 'Etiopía' AS nombre, 238 AS area_code
-                    UNION ALL
-                    SELECT 'Etiopía' AS nombre, 62 AS area_code
-                ) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
-                WHERE f.item_code = ? 
-                    AND f.element_code = '5510'
-                    AND (f.area_code < 1000 OR f.area_code = 5000)
-                    AND f.area_code != 351
-                GROUP BY 
-                    CASE 
-                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-                        ELSE p.nombre
-                    END
-            )
-            SELECT * FROM RankedData
-            WHERE Pais != 'Total'
+            SELECT 
+                CASE 
+                    WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                    WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                    ELSE p.nombre
+                END AS Pais,
+                MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
+                MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
+                MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
+                MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
+                MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
+                MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
+                MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
+                MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
+                ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
+            FROM faowiki f
+            JOIN paises p ON f.area_code = p.area_code
+            LEFT JOIN (
+                SELECT 'Sudán' AS nombre, 276 AS area_code
+                UNION ALL
+                SELECT 'Sudán' AS nombre, 206 AS area_code
+                UNION ALL
+                SELECT 'Etiopía' AS nombre, 238 AS area_code
+                UNION ALL
+                SELECT 'Etiopía' AS nombre, 62 AS area_code
+            ) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
+            WHERE f.item_code = ? 
+                AND f.element_code = '5510'
+                AND (f.area_code < 1000 OR f.area_code = 5000)
+                AND f.area_code != 351
+                AND p.nombre != 'Total'
+            GROUP BY 
+                CASE 
+                    WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                    WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                    ELSE p.nombre
+                END
             ORDER BY ranking_2022;
             ";
 
