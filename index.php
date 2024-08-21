@@ -74,16 +74,21 @@
                             $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
                             $wikidata_item = htmlspecialchars($row['wikidata_item']);
                             
-                            // Asegurarse de que el nombre de la página de Wikipedia esté correctamente codificado
-                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
+                            // Verificar si wikipedia_page no está vacío
+                            if (!empty($wikipedia_page)) {
+                                $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
+                                $wikipedia_link = '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>';
+                            } else {
+                                $wikipedia_link = 'Wikipedia (No disponible)';
+                            }
+
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
 
-                            // Debugging: Mostrar URLs generadas
                             echo '<div class="product-item">';
                             echo '<a href="' . $product_url . '">' . $item_name . '</a><br>';
-                            echo 'Wikipedia URL: <a href="' . $wikipedia_url . '" target="_blank">' . $wikipedia_url . '</a><br>';
-                            echo 'Wikidata URL: <a href="' . $wikidata_url . '" target="_blank">' . $wikidata_url . '</a>';
+                            echo $wikipedia_link . '<br>';
+                            echo '<a href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
                             echo '</div>';
                         }
                     } else {
