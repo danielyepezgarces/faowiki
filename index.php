@@ -55,15 +55,9 @@
 
                     // Consulta SQL para obtener los nombres únicos de los productos y sus códigos paginados
                     $sql = "
-                        SELECT item_name, item_code
-                        FROM (
-                            SELECT DISTINCT LOWER(p.item_name) AS item_name, f.item_code,
-                                   ROW_NUMBER() OVER (PARTITION BY p.item_name ORDER BY p.item_name) AS row_num
-                            FROM faowiki f
-                            JOIN productos p ON f.item_code = p.item_code
-                            WHERE f.element_code = '5510'
-                        ) AS ranked
-                        WHERE row_num = 1
+                        SELECT item_name, item_code, wikipedia_page, wikidata_item
+                        FROM productos
+                        WHERE categoria = '5510'
                         ORDER BY item_name
                         LIMIT $offset, $results_per_page
                     ";
@@ -75,8 +69,17 @@
                         while ($row = $result->fetch_assoc()) {
                             $item_code = htmlspecialchars($row['item_code']);
                             $item_name = htmlspecialchars($row['item_name']);
+                            $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
+                            $wikidata_item = htmlspecialchars($row['wikidata_item']);
+                            
+                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
+                            $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
+                            $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
+
                             echo '<div class="product-item">';
-                            echo '<a href="http://localhost/tablas.php?item_code=' . $item_code . '">' . $item_name . '</a>';
+                            echo '<a href="' . $product_url . '">' . $item_name . '</a>';
+                            echo ' <a href="' . $wikipedia_url . '" target="_blank">(Wikipedia)</a>';
+                            echo ' <a href="' . $wikidata_url . '" target="_blank">(Wikidata)</a>';
                             echo '</div>';
                         }
                     } else {
@@ -90,10 +93,9 @@
                         <?php
                         // Calcular el número total de páginas
                         $sql_count = "
-                            SELECT COUNT(DISTINCT LOWER(p.item_name)) AS total_count
-                            FROM faowiki f
-                            JOIN productos p ON f.item_code = p.item_code
-                            WHERE f.element_code = '5510'
+                            SELECT COUNT(*) AS total_count
+                            FROM productos
+                            WHERE categoria = '5510'
                         ";
                         $result_count = $conn->query($sql_count);
                         $total_count = $result_count->fetch_assoc()['total_count'];
