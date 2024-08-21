@@ -69,6 +69,9 @@
             margin: 0;
             font-size: 14px;
         }
+        .table-footer {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +80,7 @@
 
         <div class="table-container">
             <?php
+            // Consulta para obtener los datos de los países
             $sql = "
             WITH RankedData AS (
                 SELECT 
@@ -93,7 +97,6 @@
                     MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
                     MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
                     MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-                    f.item,
                     ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
                 FROM faowiki f
                 JOIN paises p ON f.area_code = p.area_code
@@ -115,13 +118,33 @@
                         WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
                         WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
                         ELSE p.nombre
-                    END,
-                    f.item
+                    END
             )
             SELECT * FROM RankedData
+            WHERE Pais != 'Total'
             ORDER BY ranking_2022;
             ";
 
+            // Consulta para obtener la fila de "Total"
+            $total_sql = "
+            SELECT 
+                'Total' AS Pais,
+                SUM(MAX(CASE WHEN f.year = 1961 THEN f.value END)) AS '1961',
+                SUM(MAX(CASE WHEN f.year = 1970 THEN f.value END)) AS '1970',
+                SUM(MAX(CASE WHEN f.year = 1980 THEN f.value END)) AS '1980',
+                SUM(MAX(CASE WHEN f.year = 1990 THEN f.value END)) AS '1990',
+                SUM(MAX(CASE WHEN f.year = 2000 THEN f.value END)) AS '2000',
+                SUM(MAX(CASE WHEN f.year = 2010 THEN f.value END)) AS '2010',
+                SUM(MAX(CASE WHEN f.year = 2020 THEN f.value END)) AS '2020',
+                SUM(MAX(CASE WHEN f.year = 2022 THEN f.value END)) AS '2022'
+            FROM faowiki f
+            WHERE f.item_code = ? 
+                AND f.element_code = '5510'
+                AND (f.area_code < 1000 OR f.area_code = 5000)
+                AND f.area_code != 351;
+            ";
+
+            // Ejecutar la consulta para los datos de los países
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
                 die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
@@ -135,78 +158,103 @@
                 die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8'));
             }
 
-            if ($result->num_rows > 0) {
-                echo "<table border='1' class='table table-striped'>
-                        <thead>
-                            <tr>
-                                <th>#</th> <!-- Nueva columna para el ranking -->
-                                <th>País</th>
-                                <th>1961</th>
-                                <th>1970</th>
-                                <th>1980</th>
-                                <th>1990</th>
-                                <th>2000</th>
-                                <th>2010</th>
-                                <th>2020</th>
-                                <th>2022</th>
-                            </tr>
-                        </thead>
-                        <tbody>";
-
-                function format_value($value) {
-                    if (is_null($value) || $value === '') {
-                        return ['value' => '-', 'sort' => null];
-                    }
-                    $value = str_replace(',', '', $value);  // Remover comas si existen
-                    $value = floatval($value) / 1000;
-
-                    if ($value < 0.1) {
-                        return ['value' => '<0.1', 'sort' => '0.01'];
-                    } elseif ($value < 1) {
-                        return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
-                    } elseif ($value >= 1 && $value < 10000) {
-                        return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
-                    } else {
-                        return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
-                    }
-                }
-
-                $ranking = 1; // Inicializa el contador de ranking
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                            <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td> <!-- Mostrar el ranking -->
-                            <td>";
-
-                    switch ($row['Pais']) {
-                        case 'Bélgica-Luxemburgo':
-                            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
-                            break;
-                        case 'Total':
-                            echo htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8');
-                            break;
-                        default:
-                            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
-                            break;
-                    }
-
-                    echo "</td>";
-
-                    $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
-                    foreach ($years as $year) {
-                        $formatted_value = format_value($row[$year] ?? '');
-                        $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
-                        echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
-                    }
-
-                    echo "</tr>";
-                }
-                echo "</tbody></table>";
-            } else {
-                http_response_code(204);
-                echo "<p>No se encontraron resultados para el Item: " . htmlspecialchars($item_code, ENT_QUOTES, 'UTF-8') . "</p>";
+            // Ejecutar la consulta para el total
+            $stmt_total = $conn->prepare($total_sql);
+            if ($stmt_total === false) {
+                die('Error en la preparación de la consulta de total: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
             }
 
+            $stmt_total->bind_param("s", $item_code);
+            $stmt_total->execute();
+            $result_total = $stmt_total->get_result();
+
+            // Mostrar la tabla
+            echo "<table border='1' class='table table-striped'>
+                    <thead>
+                        <tr>
+                            <th>#</th> <!-- Nueva columna para el ranking -->
+                            <th>País</th>
+                            <th>1961</th>
+                            <th>1970</th>
+                            <th>1980</th>
+                            <th>1990</th>
+                            <th>2000</th>
+                            <th>2010</th>
+                            <th>2020</th>
+                            <th>2022</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+
+            function format_value($value) {
+                if (is_null($value) || $value === '') {
+                    return ['value' => '-', 'sort' => null];
+                }
+                $value = str_replace(',', '', $value);  // Remover comas si existen
+                $value = floatval($value) / 1000;
+
+                if ($value < 0.1) {
+                    return ['value' => '<0.1', 'sort' => '0.01'];
+                } elseif ($value < 1) {
+                    return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
+                } elseif ($value >= 1 && $value < 10000) {
+                    return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
+                } else {
+                    return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
+                }
+            }
+
+            $ranking = 1; // Contador para el ranking
+
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>
+                        <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>";
+
+                switch ($row['Pais']) {
+                    case 'Bélgica-Luxemburgo':
+                        echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
+                        break;
+                    case 'Total':
+                        // No mostrar 'Total' aquí, se manejará en el pie de tabla
+                        continue 2; // Saltar al siguiente registro
+                    default:
+                        echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
+                        break;
+                }
+
+                echo "</td>";
+
+                $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
+                foreach ($years as $year) {
+                    $formatted_value = format_value($row[$year] ?? '');
+                    $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
+                    echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+                }
+
+                echo "</tr>";
+            }
+
+            // Mostrar la fila 'Total' si existe
+            if ($result_total->num_rows > 0) {
+                $total_row = $result_total->fetch_assoc();
+                echo "<tr class='table-footer'>
+                        <td></td> <!-- Columna de ranking vacía para la fila 'Total' -->
+                        <td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+
+                foreach ($years as $year) {
+                    $formatted_value = format_value($total_row[$year] ?? '');
+                    echo "<td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+                }
+
+                echo "</tr>";
+            }
+
+            echo "</tbody></table>";
+
+            // Cierre de conexiones
             $stmt->close();
+            $stmt_total->close();
             $conn->close();
             ?>
         </div>
