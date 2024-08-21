@@ -29,6 +29,9 @@
             margin: 0;
             font-size: 14px;
         }
+        .product-links {
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +50,9 @@
                     if ($conn->connect_error) {
                         die("Conexión fallida: " . $conn->connect_error);
                     }
+
+                    // Configurar el conjunto de caracteres a UTF-8
+                    $conn->set_charset("utf8mb4");
 
                     // Calcular el offset según la página actual
                     $page = isset($_GET['page']) ? $_GET['page'] : 1;
@@ -74,7 +80,7 @@
                             $wikipedia_page = $row['wikipedia_page'];
                             $wikidata_item = $row['wikidata_item'];
 
-                            // Construir URL de Wikipedia
+                            // Construir URL de Wikipedia con codificación UTF-8
                             $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
                             $wikipedia_link = !empty($wikipedia_page) 
                                 ? '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
@@ -82,14 +88,14 @@
 
                             // Construir URL de Wikidata
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
+                            $wikidata_link = '<a href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
 
                             // Enlace al detalle del producto
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . urlencode($item_code);
 
                             echo '<div class="product-item">';
-                            echo '<h4><a href="' . $product_url . '">' . $item_name . '</a></h4>';
-                            echo '<p>' . $wikipedia_link . '</p>';
-                            echo '<p><a href="' . $wikidata_url . '" target="_blank">Wikidata</a></p>';
+                            echo '<h4><a href="' . $product_url . '">' . htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8') . '</a></h4>';
+                            echo '<p class="product-links">' . $wikipedia_link . ' - ' . $wikidata_link . '</p>';
                             echo '</div>';
                         }
                     } else {
@@ -135,4 +141,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
-
