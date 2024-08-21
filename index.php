@@ -74,22 +74,22 @@
                             $wikipedia_page = htmlspecialchars($row['wikipedia_page']);
                             $wikidata_item = htmlspecialchars($row['wikidata_item']);
 
-                            // Construir URL de Wikipedia, asegurándose de que el prefijo esté incluido
-                            if (!empty($wikipedia_page)) {
-                                $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
-                                $wikipedia_link = '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>';
-                            } else {
-                                $wikipedia_link = 'Wikipedia (No disponible)';
-                            }
+                            // Construir URL de Wikipedia
+                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
+                            $wikipedia_link = !empty($wikipedia_page) 
+                                ? '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
+                                : 'Wikipedia (No disponible)';
 
                             // Construir URL de Wikidata
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
+
+                            // Enlace al detalle del producto
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
 
                             echo '<div class="product-item">';
-                            echo '<a href="' . $product_url . '">' . $item_name . '</a><br>';
-                            echo $wikipedia_link . '<br>';
-                            echo '<a href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
+                            echo '<h4><a href="' . $product_url . '">' . $item_name . '</a></h4>';
+                            echo '<p>' . $wikipedia_link . '</p>';
+                            echo '<p><a href="' . $wikidata_url . '" target="_blank">Wikidata</a></p>';
                             echo '</div>';
                         }
                     } else {
