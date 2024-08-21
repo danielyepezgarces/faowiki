@@ -80,7 +80,7 @@
 
         <div class="table-container">
             <?php
-            // Consulta para obtener los datos de los países (sin incluir "Total")
+            // Consulta para obtener los datos de los países
             $sql = "
             SELECT 
                 CASE 
@@ -99,20 +99,11 @@
                 ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
             FROM faowiki f
             JOIN paises p ON f.area_code = p.area_code
-            LEFT JOIN (
-                SELECT 'Sudán' AS nombre, 276 AS area_code
-                UNION ALL
-                SELECT 'Sudán' AS nombre, 206 AS area_code
-                UNION ALL
-                SELECT 'Etiopía' AS nombre, 238 AS area_code
-                UNION ALL
-                SELECT 'Etiopía' AS nombre, 62 AS area_code
-            ) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
             WHERE f.item_code = ? 
                 AND f.element_code = '5510'
                 AND (f.area_code < 1000 OR f.area_code = 5000)
                 AND f.area_code != 351
-                AND p.nombre != 'Total'
+                AND f.area_code != 5000
             GROUP BY 
                 CASE 
                     WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
@@ -122,7 +113,7 @@
             ORDER BY ranking_2022;
             ";
 
-            // Consulta para obtener la fila de "Total"
+            // Consulta para obtener la fila de "Total" con area_code 5000
             $total_sql = "
             SELECT 
                 'Total' AS Pais,
@@ -137,8 +128,7 @@
             FROM faowiki f
             WHERE f.item_code = ? 
                 AND f.element_code = '5510'
-                AND (f.area_code < 1000 OR f.area_code = 5000)
-                AND f.area_code != 351;
+                AND f.area_code = 5000;
             ";
 
             // Ejecutar la consulta para los datos de los países
