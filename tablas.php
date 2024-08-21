@@ -78,51 +78,49 @@
         <div class="table-container">
             <?php
             $sql = "
-SELECT 
-    CASE 
-        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-        ELSE p.nombre
-    END AS Pais,
-    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
-    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
-    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
-    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
-    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
-    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
-    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
-    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-    f.item
-FROM faowiki f
-JOIN paises p ON f.area_code = p.area_code
-LEFT JOIN (
-    SELECT 'Sudán' AS nombre, 276 AS area_code
-    UNION ALL
-    SELECT 'Sudán' AS nombre, 206 AS area_code
-    UNION ALL
-    SELECT 'Etiopía' AS nombre, 238 AS area_code
-    UNION ALL
-    SELECT 'Etiopía' AS nombre, 62 AS area_code
-) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
-WHERE f.item_code = ? 
-    AND f.element_code = '5510'
-    AND (f.area_code < 1000 OR f.area_code = 5000)
-    AND f.area_code != 351
-GROUP BY 
-    CASE 
-        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-        ELSE p.nombre
-    END,
-    f.item
-ORDER BY 
-    CASE WHEN p.id = 212 THEN 1 ELSE 0 END,  -- Pone p.id 212 al final
-    CASE 
-        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-        ELSE p.nombre
-    END;
-";
+            WITH RankedData AS (
+                SELECT 
+                    CASE 
+                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                        ELSE p.nombre
+                    END AS Pais,
+                    MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
+                    MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
+                    MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
+                    MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
+                    MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
+                    MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
+                    MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
+                    MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
+                    f.item,
+                    ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
+                FROM faowiki f
+                JOIN paises p ON f.area_code = p.area_code
+                LEFT JOIN (
+                    SELECT 'Sudán' AS nombre, 276 AS area_code
+                    UNION ALL
+                    SELECT 'Sudán' AS nombre, 206 AS area_code
+                    UNION ALL
+                    SELECT 'Etiopía' AS nombre, 238 AS area_code
+                    UNION ALL
+                    SELECT 'Etiopía' AS nombre, 62 AS area_code
+                ) AS unified_paises ON p.nombre = unified_paises.nombre AND f.area_code = unified_paises.area_code
+                WHERE f.item_code = ? 
+                    AND f.element_code = '5510'
+                    AND (f.area_code < 1000 OR f.area_code = 5000)
+                    AND f.area_code != 351
+                GROUP BY 
+                    CASE 
+                        WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                        WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                        ELSE p.nombre
+                    END,
+                    f.item
+            )
+            SELECT * FROM RankedData
+            ORDER BY ranking_2022;
+            ";
 
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
@@ -141,6 +139,7 @@ ORDER BY
                 echo "<table border='1' class='table table-striped'>
                         <thead>
                             <tr>
+                                <th>#</th> <!-- Nueva columna para el ranking -->
                                 <th>País</th>
                                 <th>1961</th>
                                 <th>1970</th>
@@ -172,8 +171,10 @@ ORDER BY
                     }
                 }
 
+                $ranking = 1; // Inicializa el contador de ranking
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>
+                            <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td> <!-- Mostrar el ranking -->
                             <td>";
 
                     switch ($row['Pais']) {
@@ -212,10 +213,10 @@ ORDER BY
     </div>
 
     <footer>
-        <p>&copy; 2024 FAOWIKI - Desarrollado por <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces">Danielyepezgarces</a> - Datos de la FAO bajo <a href="https://creativecommons.org/licenses/by-sa/3.0/es/">CC BY SA</a></p>
+        <p>&copy; <?php echo date("Y"); ?> FAOWIKI. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Bootstrap Bundle with Popper -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
