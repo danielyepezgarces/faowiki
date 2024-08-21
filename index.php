@@ -98,12 +98,16 @@
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
                             $wikidata_link = '<a class="btn btn-success" href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
 
+                            // Construir URL RAW
+                            $raw_url = "/raw/tablas.php?item_code=" . urlencode($item_code);
+                            $raw_link = '<a class="btn btn-info" href="' . $raw_url . '" target="_blank">RAW</a>';
+
                             // Enlace al detalle del producto
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . urlencode($item_code);
 
                             echo '<div class="product-item">';
                             echo '<h4><a href="' . $product_url . '">' . htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8') . '</a></h4>';
-                            echo '<div class="btn-group">' . $wikipedia_link . ' ' . $wikidata_link . '</div>';
+                            echo '<div class="btn-group">' . $wikipedia_link . ' ' . $wikidata_link . ' ' . $raw_link . '</div>';
                             echo '</div>';
                         }
                     } else {
@@ -141,7 +145,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2024 FAOWIKI - Developed by <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces" target="_blank">Danielyepezgarces</a> - FAO data used under CC BY SA</p>
+        <p>&copy; 2024 FAOWIKI - Developed by <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces" target="_blank">Danielyepezgarces</a> - FAO data used under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY SA 4.0</a></p>
     </footer>
 
     <!-- Bootstrap JS y dependencias Popper.js -->
