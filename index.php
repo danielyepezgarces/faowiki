@@ -79,10 +79,11 @@
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . $item_code;
 
+                            // Debugging: Mostrar URLs generadas
                             echo '<div class="product-item">';
-                            echo '<a href="' . $product_url . '">' . $item_name . '</a>';
-                            echo ' <a href="' . $wikipedia_url . '" target="_blank">(Wikipedia)</a>';
-                            echo ' <a href="' . $wikidata_url . '" target="_blank">(Wikidata)</a>';
+                            echo '<a href="' . $product_url . '">' . $item_name . '</a><br>';
+                            echo 'Wikipedia URL: <a href="' . $wikipedia_url . '" target="_blank">' . $wikipedia_url . '</a><br>';
+                            echo 'Wikidata URL: <a href="' . $wikidata_url . '" target="_blank">' . $wikidata_url . '</a>';
                             echo '</div>';
                         }
                     } else {
