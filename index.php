@@ -31,6 +31,7 @@
         }
         .product-links {
             font-size: 14px;
+            white-space: nowrap; /* Evita el salto de línea en los enlaces */
         }
     </style>
 </head>
@@ -80,8 +81,11 @@
                             $wikipedia_page = $row['wikipedia_page'];
                             $wikidata_item = $row['wikidata_item'];
 
+                            // Reemplazar espacios con guiones bajos para la URL de Wikipedia
+                            $wikipedia_page_encoded = str_replace(' ', '_', $wikipedia_page);
+
                             // Construir URL de Wikipedia con codificación UTF-8
-                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page);
+                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page_encoded);
                             $wikipedia_link = !empty($wikipedia_page) 
                                 ? '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
                                 : 'Wikipedia (No disponible)';
