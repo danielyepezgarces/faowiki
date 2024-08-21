@@ -58,6 +58,8 @@
                         SELECT item_name, item_code, wikipedia_page, wikidata_item
                         FROM productos
                         WHERE categoria = '5510'
+                          AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
+                          AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
                         ORDER BY item_name
                         LIMIT $offset, $results_per_page
                     ";
@@ -96,6 +98,8 @@
                             SELECT COUNT(*) AS total_count
                             FROM productos
                             WHERE categoria = '5510'
+                              AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
+                              AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
                         ";
                         $result_count = $conn->query($sql_count);
                         $total_count = $result_count->fetch_assoc()['total_count'];
