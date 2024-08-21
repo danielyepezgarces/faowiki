@@ -129,14 +129,14 @@
             $total_sql = "
             SELECT 
                 'Total' AS Pais,
-                SUM(MAX(CASE WHEN f.year = 1961 THEN f.value END)) AS '1961',
-                SUM(MAX(CASE WHEN f.year = 1970 THEN f.value END)) AS '1970',
-                SUM(MAX(CASE WHEN f.year = 1980 THEN f.value END)) AS '1980',
-                SUM(MAX(CASE WHEN f.year = 1990 THEN f.value END)) AS '1990',
-                SUM(MAX(CASE WHEN f.year = 2000 THEN f.value END)) AS '2000',
-                SUM(MAX(CASE WHEN f.year = 2010 THEN f.value END)) AS '2010',
-                SUM(MAX(CASE WHEN f.year = 2020 THEN f.value END)) AS '2020',
-                SUM(MAX(CASE WHEN f.year = 2022 THEN f.value END)) AS '2022'
+                SUM(CASE WHEN f.year = 1961 THEN f.value ELSE 0 END) AS '1961',
+                SUM(CASE WHEN f.year = 1970 THEN f.value ELSE 0 END) AS '1970',
+                SUM(CASE WHEN f.year = 1980 THEN f.value ELSE 0 END) AS '1980',
+                SUM(CASE WHEN f.year = 1990 THEN f.value ELSE 0 END) AS '1990',
+                SUM(CASE WHEN f.year = 2000 THEN f.value ELSE 0 END) AS '2000',
+                SUM(CASE WHEN f.year = 2010 THEN f.value ELSE 0 END) AS '2010',
+                SUM(CASE WHEN f.year = 2020 THEN f.value ELSE 0 END) AS '2020',
+                SUM(CASE WHEN f.year = 2022 THEN f.value ELSE 0 END) AS '2022'
             FROM faowiki f
             WHERE f.item_code = ? 
                 AND f.element_code = '5510'
