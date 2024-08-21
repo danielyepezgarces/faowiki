@@ -33,6 +33,10 @@
             font-size: 14px;
             white-space: nowrap; /* Evita el salto de línea en los enlaces */
         }
+        .btn-group {
+            display: flex;
+            gap: 10px; /* Espacio entre los botones */
+        }
     </style>
 </head>
 <body>
@@ -87,19 +91,19 @@
                             // Construir URL de Wikipedia con codificación UTF-8
                             $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page_encoded);
                             $wikipedia_link = !empty($wikipedia_page) 
-                                ? '<a href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
-                                : 'Wikipedia (No disponible)';
+                                ? '<a class="btn btn-primary" href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
+                                : '<span class="btn btn-secondary disabled">Wikipedia (No disponible)</span>';
 
                             // Construir URL de Wikidata
                             $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
-                            $wikidata_link = '<a href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
+                            $wikidata_link = '<a class="btn btn-success" href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
 
                             // Enlace al detalle del producto
                             $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . urlencode($item_code);
 
                             echo '<div class="product-item">';
                             echo '<h4><a href="' . $product_url . '">' . htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8') . '</a></h4>';
-                            echo '<p class="product-links">' . $wikipedia_link . ' - ' . $wikidata_link . '</p>';
+                            echo '<div class="btn-group">' . $wikipedia_link . ' ' . $wikidata_link . '</div>';
                             echo '</div>';
                         }
                     } else {
