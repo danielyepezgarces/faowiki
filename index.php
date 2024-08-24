@@ -1,155 +1,67 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Productos</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .product-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+<?php
+include 'config.php';  // Conexión a la base de datos
+include 'queries.php'; // Funciones SQL
+
+$item_code = '1234'; // Ejemplo de código de item, deberías definir esto según tu lógica
+
+// Obtener los datos de los países
+$result = get_country_data($conn, $item_code);
+
+// Obtener los datos totales
+$result_total = get_total_data($conn, $item_code);
+
+// Mostrar la tabla
+echo "<table border='1' class='table table-striped'>
+        <thead>
+            <tr>
+                <th>#</th> <!-- Nueva columna para el ranking -->
+                <th>País</th>
+                <th>1961</th>
+                <th>1970</th>
+                <th>1980</th>
+                <th>1990</th>
+                <th>2000</th>
+                <th>2010</th>
+                <th>2020</th>
+                <th>2022</th>
+            </tr>
+        </thead>
+        <tbody>";
+
+$ranking = 1; // Contador para el ranking
+
+while ($row = $result->fetch_assoc()) {
+    echo "<tr>";
+    echo "<td>{$ranking}</td>"; // Columna para el ranking
+    echo "<td>" . htmlspecialchars($row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+
+    foreach (['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'] as $year) {
+        $formatted = format_value($row[$year]);
+        echo "<td data-sort-value='" . ($formatted['sort'] ?? '') . "'>" . $formatted['value'] . "</td>";
+    }
+
+    echo "</tr>";
+
+    $ranking++; // Incrementar el ranking después de cada fila
+}
+
+// Mostrar los totales
+if ($result_total->num_rows > 0) {
+    while ($total_row = $result_total->fetch_assoc()) {
+        echo "<tr class='table-footer'>";
+        echo "<td></td>"; // Columna vacía para el ranking en la fila de total
+        echo "<td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+
+        foreach (['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'] as $year) {
+            $formatted_total = format_value($total_row[$year]);
+            echo "<td data-sort-value='" . ($formatted_total['sort'] ?? '') . "'>" . $formatted_total['value'] . "</td>";
         }
-        .product-item a {
-            text-decoration: none; /* Eliminar subrayado de los enlaces */
-            color: #212529; /* Color de texto para los enlaces */
-        }
-        footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            text-align: center;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-        footer p {
-            margin: 0;
-            font-size: 14px;
-        }
-        .product-links {
-            font-size: 14px;
-            white-space: nowrap; /* Evita el salto de línea en los enlaces */
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px; /* Espacio entre los botones */
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <h1 class="text-center mb-4">Lista de Productos</h1>
-                <div class="list-group">
-                    <?php
-                    include 'config.php';
 
-                    // Crear conexión
-                    $conn = new mysqli($servername, $username, $password, $dbname);
+        echo "</tr>";
+    }
+}
 
-                    // Verificar conexión
-                    if ($conn->connect_error) {
-                        die("Conexión fallida: " . $conn->connect_error);
-                    }
+echo "</tbody></table>";
 
-                    // Configurar el conjunto de caracteres a UTF-8
-                    $conn->set_charset("utf8mb4");
-
-                    // Calcular el offset según la página actual
-                    $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                    $results_per_page = 10; // Cantidad de resultados por página
-                    $offset = ($page - 1) * $results_per_page;
-
-                    // Consulta SQL para obtener los nombres únicos de los productos y sus códigos paginados
-                    $sql = "
-                        SELECT item_name, item_code, wikipedia_page, wikidata_item
-                        FROM productos
-                        WHERE categoria = '5510'
-                          AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
-                          AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
-                        ORDER BY item_name
-                        LIMIT $offset, $results_per_page
-                    ";
-
-                    $result = $conn->query($sql);
-
-                    if ($result->num_rows > 0) {
-                        // Mostrar cada nombre de producto como un enlace a tablas.php con el item_code
-                        while ($row = $result->fetch_assoc()) {
-                            $item_code = $row['item_code'];
-                            $item_name = $row['item_name'];
-                            $wikipedia_page = $row['wikipedia_page'];
-                            $wikidata_item = $row['wikidata_item'];
-
-                            // Reemplazar espacios con guiones bajos para la URL de Wikipedia
-                            $wikipedia_page_encoded = str_replace(' ', '_', $wikipedia_page);
-
-                            // Construir URL de Wikipedia con codificación UTF-8
-                            $wikipedia_url = "https://es.wikipedia.org/wiki/" . urlencode($wikipedia_page_encoded);
-                            $wikipedia_link = !empty($wikipedia_page) 
-                                ? '<a class="btn btn-primary" href="' . $wikipedia_url . '" target="_blank">Wikipedia</a>'
-                                : '<span class="btn btn-secondary disabled">Wikipedia (No disponible)</span>';
-
-                            // Construir URL de Wikidata
-                            $wikidata_url = "https://www.wikidata.org/wiki/" . urlencode($wikidata_item);
-                            $wikidata_link = '<a class="btn btn-success" href="' . $wikidata_url . '" target="_blank">Wikidata</a>';
-
-                            // Construir URL RAW
-                            $raw_url = "/raw/tablas.php?item_code=" . urlencode($item_code);
-                            $raw_link = '<a class="btn btn-info" href="' . $raw_url . '" target="_blank">RAW</a>';
-
-                            // Enlace al detalle del producto
-                            $product_url = "https://faowiki.toolforge.org/tablas.php?item_code=" . urlencode($item_code);
-
-                            echo '<div class="product-item">';
-                            echo '<h4><a href="' . $product_url . '">' . htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8') . '</a></h4>';
-                            echo '<div class="btn-group">' . $wikipedia_link . ' ' . $wikidata_link . ' ' . $raw_link . '</div>';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo '<div class="product-item">No hay productos disponibles.</div>';
-                    }
-
-                    // Cerrar conexión
-                    $conn->close();
-                    ?>
-                </div>
-                <nav aria-label="Navegación de páginas">
-                    <ul class="pagination justify-content-center mt-4">
-                        <?php
-                        // Calcular el número total de páginas
-                        $sql_count = "
-                            SELECT COUNT(*) AS total_count
-                            FROM productos
-                            WHERE categoria = '5510'
-                              AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
-                              AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
-                        ";
-                        $result_count = $conn->query($sql_count);
-                        $total_count = $result_count->fetch_assoc()['total_count'];
-                        $total_pages = ceil($total_count / $results_per_page);
-
-                        // Mostrar enlaces de paginación
-                        for ($i = 1; $i <= $total_pages; $i++) {
-                            echo '<li class="page-item ' . ($page == $i ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
-                        }
-                        ?>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2024 FAOWIKI - Developed by <a href="https://es.wikipedia.org/wiki/Usuario:Danielyepezgarces" target="_blank">Danielyepezgarces</a> - FAO data used under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY SA 4.0</a></p>
-    </footer>
-
-    <!-- Bootstrap JS y dependencias Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-</body>
-</html>
+$conn->close();
+?>
