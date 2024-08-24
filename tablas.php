@@ -37,7 +37,15 @@
 
     // Consulta para obtener el mayor productor en 2022 y su porcentaje
     $top_producer_query = "
-        WITH RankedData AS (
+        WITH TotalProduction AS (
+            SELECT SUM(CASE WHEN f.year = 2022 THEN f.value END) AS total_production
+            FROM faowiki f
+            WHERE f.item_code = ? 
+                AND f.element_code = '5510'
+                AND (f.area_code < 1000 OR f.area_code = 5000)
+                AND f.area_code != 351
+        ),
+        RankedData AS (
             SELECT 
                 CASE 
                     WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
@@ -45,7 +53,7 @@
                     ELSE p.nombre
                 END AS Pais,
                 MAX(CASE WHEN f.year = 2022 THEN f.value END) AS `2022`,
-                (SELECT SUM(CASE WHEN f.year = 2022 THEN f.value END) FROM faowiki f WHERE f.item_code = ? AND f.element_code = '5510' AND (f.area_code < 1000 OR f.area_code = 5000) AND f.area_code != 351) AS total_production
+                (SELECT total_production FROM TotalProduction) AS total_production
             FROM faowiki f
             JOIN paises p ON f.area_code = p.area_code
             LEFT JOIN (
@@ -83,6 +91,25 @@
     $result_top_producer = $stmt_top_producer->get_result();
     $top_producer = $result_top_producer->fetch_assoc();
     $stmt_top_producer->close();
+
+    // Función para formatear valores
+    function format_value($value) {
+        if (is_null($value) || $value === '') {
+            return ['value' => '-', 'sort' => null];
+        }
+        $value = str_replace(',', '', $value);  // Remover comas si existen
+        $value = floatval($value) / 1000;
+
+        if ($value < 0.1) {
+            return ['value' => '<0.1', 'sort' => '0.01'];
+        } elseif ($value < 1) {
+            return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
+        } elseif ($value >= 1 && $value < 10000) {
+            return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
+        } else {
+            return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
+        }
+    }
     ?>
 
     <!-- Bootstrap CSS -->
@@ -98,15 +125,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center; /* Centrar el contenido principal */
+            text-align: center;
         }
         .table-container {
             width: 80%;
-            margin: 0 auto; /* Centrar la tabla */
+            margin: 0 auto;
         }
         h1 {
-            text-align: center; /* Centrar el header */
-            margin: 25px 0; /* Añadir margen superior e inferior */
+            text-align: center;
+            margin: 25px 0;
         }
         footer {
             background-color: #f8f9fa;
@@ -129,18 +156,26 @@
         if ($top_producer) {
             $producto = htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8');
             $año = 2022;
-            $toneladas = number_format(floatval($top_producer['`2022`']) / 1000, 0, '.', ',');
+            $toneladas = format_value(floatval($top_producer['`2022`']));
             $pais = htmlspecialchars($top_producer['Pais'], ENT_QUOTES, 'UTF-8');
             $porcentaje = htmlspecialchars($top_producer['percentage'], ENT_QUOTES, 'UTF-8');
 
-            echo "<p>Esta es una lista histórica de países por producción de $producto, basada en los datos de la Organización de las Naciones Unidas para la Alimentación y la Agricultura. La producción mundial total de $producto en $año era de $toneladas toneladas. $pais es el mayor productor, representando el $porcentaje% de la producción mundial. Los territorios dependientes son mostrados en cursiva.</p>";
+            echo "<p>Esta es una lista histórica de países por producción de $producto, basada en los datos de la Organización de las Naciones Unidas para la Alimentación y la Agricultura. La producción mundial total de $producto en $año era de " . $toneladas['value'] . " toneladas. $pais es el mayor productor, representando el $porcentaje% de la producción mundial. Los territorios dependientes son mostrados en cursiva.</p>";
         }
         ?>
 
         <div class="table-container">
             <?php
             $sql = "
-            WITH RankedData AS (
+            WITH TotalProduction AS (
+                SELECT SUM(CASE WHEN f.year = 2022 THEN f.value END) AS total_production
+                FROM faowiki f
+                WHERE f.item_code = ? 
+                    AND f.element_code = '5510'
+                    AND (f.area_code < 1000 OR f.area_code = 5000)
+                    AND f.area_code != 351
+            ),
+            RankedData AS (
                 SELECT 
                     CASE 
                         WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
@@ -177,31 +212,22 @@
                         WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
                         WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
                         ELSE p.nombre
-                    END,
-                    f.item
+                    END
+                ORDER BY ranking_2022
             )
             SELECT * FROM RankedData
-            ORDER BY ranking_2022;
             ";
 
             $stmt = $conn->prepare($sql);
-            if ($stmt === false) {
-                die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
-            }
-
             $stmt->bind_param("s", $item_code);
             $stmt->execute();
             $result = $stmt->get_result();
 
-            if ($result === false) {
-                die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8'));
-            }
-
             if ($result->num_rows > 0) {
-                echo "<table border='1' class='table table-striped'>
+                echo "<table class='table table-striped'>
                         <thead>
                             <tr>
-                                <th>#</th> <!-- Nueva columna para el ranking -->
+                                <th>Ranking</th>
                                 <th>País</th>
                                 <th>1961</th>
                                 <th>1970</th>
@@ -217,19 +243,33 @@
 
                 $rank = 1; // Inicializar el contador de ranking
                 while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                            <td>" . $rank . "</td> <!-- Mostrar ranking -->
-                            <td>" . htmlspecialchars($row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>
-                            <td>" . number_format($row['1961'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['1970'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['1980'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['1990'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['2000'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['2010'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['2020'], 0, '.', ',') . "</td>
-                            <td>" . number_format($row['2022'], 0, '.', ',') . "</td>
-                        </tr>";
-                    $rank++; // Incrementar el contador de ranking
+                    // Excluir el total del ranking
+                    if ($row['Pais'] != 'Total') {
+                        $formatted_values = array_map('format_value', [
+                            $row['1961'],
+                            $row['1970'],
+                            $row['1980'],
+                            $row['1990'],
+                            $row['2000'],
+                            $row['2010'],
+                            $row['2020'],
+                            $row['2022']
+                        ]);
+                        
+                        echo "<tr>
+                                <td>" . $rank . "</td> <!-- Mostrar ranking -->
+                                <td>" . htmlspecialchars($row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>
+                                <td>" . $formatted_values[0]['value'] . "</td>
+                                <td>" . $formatted_values[1]['value'] . "</td>
+                                <td>" . $formatted_values[2]['value'] . "</td>
+                                <td>" . $formatted_values[3]['value'] . "</td>
+                                <td>" . $formatted_values[4]['value'] . "</td>
+                                <td>" . $formatted_values[5]['value'] . "</td>
+                                <td>" . $formatted_values[6]['value'] . "</td>
+                                <td>" . $formatted_values[7]['value'] . "</td>
+                            </tr>";
+                        $rank++; // Incrementar el contador de ranking
+                    }
                 }
                 
                 echo "</tbody>
