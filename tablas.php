@@ -34,98 +34,6 @@
 
     $page_title = "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8') . " | FAOWIKI";
     echo "<title>$page_title</title>";
-
-    // Consulta para obtener los datos de los países
-    $sql = "
-    SELECT 
-        CASE 
-            WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-            WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-            ELSE p.nombre
-        END AS Pais,
-        MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
-        MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
-        MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
-        MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
-        MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
-        MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
-        MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
-        MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
-        ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
-    FROM faowiki f
-    JOIN paises p ON f.area_code = p.area_code
-    WHERE f.item_code = ? 
-        AND f.element_code = '5510'
-        AND (f.area_code < 1000 OR f.area_code = 5000)
-        AND f.area_code != 351
-        AND f.area_code != 5000
-    GROUP BY 
-        CASE 
-            WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
-            WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
-            ELSE p.nombre
-        END
-    ORDER BY ranking_2022;
-    ";
-
-    // Consulta para obtener la fila de "Total" con area_code 5000
-    $total_sql = "
-    SELECT 
-        'Total' AS Pais,
-        SUM(CASE WHEN f.year = 1961 THEN f.value ELSE 0 END) AS '1961',
-        SUM(CASE WHEN f.year = 1970 THEN f.value ELSE 0 END) AS '1970',
-        SUM(CASE WHEN f.year = 1980 THEN f.value ELSE 0 END) AS '1980',
-        SUM(CASE WHEN f.year = 1990 THEN f.value ELSE 0 END) AS '1990',
-        SUM(CASE WHEN f.year = 2000 THEN f.value ELSE 0 END) AS '2000',
-        SUM(CASE WHEN f.year = 2010 THEN f.value ELSE 0 END) AS '2010',
-        SUM(CASE WHEN f.year = 2020 THEN f.value ELSE 0 END) AS '2020',
-        SUM(CASE WHEN f.year = 2022 THEN f.value ELSE 0 END) AS '2022'
-    FROM faowiki f
-    WHERE f.item_code = ? 
-        AND f.element_code = '5510'
-        AND f.area_code = 5000;
-    ";
-
-    // Ejecutar la consulta para los datos de los países
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
-    }
-
-    $stmt->bind_param("s", $item_code);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result === false) {
-        die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8'));
-    }
-
-    // Ejecutar la consulta para el total
-    $stmt_total = $conn->prepare($total_sql);
-    if ($stmt_total === false) {
-        die('Error en la preparación de la consulta de total: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
-    }
-
-    $stmt_total->bind_param("s", $item_code);
-    $stmt_total->execute();
-    $result_total = $stmt_total->get_result();
-
-    // Obtener la producción total y el mayor productor
-    $total_row = $result_total->fetch_assoc();
-    $total_production = $total_row['2022']; // Asumiendo que 2022 es el año más reciente
-
-    $top_producer = null;
-    $top_production = 0;
-
-    while ($row = $result->fetch_assoc()) {
-        if ($row['2022'] > $top_production) {
-            $top_production = $row['2022'];
-            $top_producer = $row['Pais'];
-        }
-    }
-
-    $top_percentage = ($total_production > 0) ? ($top_production / $total_production) * 100 : 0;
-
     ?>
 
     <!-- Bootstrap CSS -->
@@ -170,11 +78,83 @@
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
 
-        <!-- Texto Dinámico Adicional -->
-        <p>Esta es una lista histórica de países por producción de <?php echo htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8'); ?>, basada en los datos de la Organización de las Naciones Unidas para la Alimentación y la Agricultura. La producción mundial total de <?php echo htmlspecialchars($item_name, ENT_QUOTES, 'UTF-8'); ?> en 2022 era de <?php echo htmlspecialchars(number_format($total_production / 1000, 0, '.', ''), ENT_QUOTES, 'UTF-8'); ?> toneladas. <?php echo htmlspecialchars($top_producer, ENT_QUOTES, 'UTF-8'); ?> es el mayor productor, representando el <?php echo htmlspecialchars(number_format($top_percentage, 2, '.', ''), ENT_QUOTES, 'UTF-8'); ?>% de la producción mundial. Los territorios dependientes son mostrados en cursiva.</p>
-
         <div class="table-container">
             <?php
+            // Consulta para obtener los datos de los países
+            $sql = "
+            SELECT 
+                CASE 
+                    WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                    WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                    ELSE p.nombre
+                END AS Pais,
+                MAX(CASE WHEN f.year = 1961 THEN f.value END) AS '1961',
+                MAX(CASE WHEN f.year = 1970 THEN f.value END) AS '1970',
+                MAX(CASE WHEN f.year = 1980 THEN f.value END) AS '1980',
+                MAX(CASE WHEN f.year = 1990 THEN f.value END) AS '1990',
+                MAX(CASE WHEN f.year = 2000 THEN f.value END) AS '2000',
+                MAX(CASE WHEN f.year = 2010 THEN f.value END) AS '2010',
+                MAX(CASE WHEN f.year = 2020 THEN f.value END) AS '2020',
+                MAX(CASE WHEN f.year = 2022 THEN f.value END) AS '2022',
+                ROW_NUMBER() OVER (ORDER BY MAX(CASE WHEN f.year = 2022 THEN f.value END) DESC) AS ranking_2022
+            FROM faowiki f
+            JOIN paises p ON f.area_code = p.area_code
+            WHERE f.item_code = ? 
+                AND f.element_code = '5510'
+                AND (f.area_code < 1000 OR f.area_code = 5000)
+                AND f.area_code != 351
+                AND f.area_code != 5000
+            GROUP BY 
+                CASE 
+                    WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
+                    WHEN p.nombre = 'República Democrática de Sudán' THEN 'Sudán'
+                    ELSE p.nombre
+                END
+            ORDER BY ranking_2022;
+            ";
+
+            // Consulta para obtener la fila de "Total" con area_code 5000
+            $total_sql = "
+            SELECT 
+                'Total' AS Pais,
+                SUM(CASE WHEN f.year = 1961 THEN f.value ELSE 0 END) AS '1961',
+                SUM(CASE WHEN f.year = 1970 THEN f.value ELSE 0 END) AS '1970',
+                SUM(CASE WHEN f.year = 1980 THEN f.value ELSE 0 END) AS '1980',
+                SUM(CASE WHEN f.year = 1990 THEN f.value ELSE 0 END) AS '1990',
+                SUM(CASE WHEN f.year = 2000 THEN f.value ELSE 0 END) AS '2000',
+                SUM(CASE WHEN f.year = 2010 THEN f.value ELSE 0 END) AS '2010',
+                SUM(CASE WHEN f.year = 2020 THEN f.value ELSE 0 END) AS '2020',
+                SUM(CASE WHEN f.year = 2022 THEN f.value ELSE 0 END) AS '2022'
+            FROM faowiki f
+            WHERE f.item_code = ? 
+                AND f.element_code = '5510'
+                AND f.area_code = 5000;
+            ";
+
+            // Ejecutar la consulta para los datos de los países
+            $stmt = $conn->prepare($sql);
+            if ($stmt === false) {
+                die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
+            }
+
+            $stmt->bind_param("s", $item_code);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result === false) {
+                die('Error al ejecutar la consulta: ' . htmlspecialchars($stmt->error, ENT_QUOTES, 'UTF-8'));
+            }
+
+            // Ejecutar la consulta para el total
+            $stmt_total = $conn->prepare($total_sql);
+            if ($stmt_total === false) {
+                die('Error en la preparación de la consulta de total: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
+            }
+
+            $stmt_total->bind_param("s", $item_code);
+            $stmt_total->execute();
+            $result_total = $stmt_total->get_result();
+
             // Mostrar la tabla
             echo "<table border='1' class='table table-striped'>
                     <thead>
@@ -241,6 +221,7 @@
 
             // Mostrar la fila 'Total' si existe
             if ($result_total->num_rows > 0) {
+                $total_row = $result_total->fetch_assoc();
                 echo "<tr class='table-footer'>
                         <td></td> <!-- Columna de ranking vacía para la fila 'Total' -->
                         <td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
