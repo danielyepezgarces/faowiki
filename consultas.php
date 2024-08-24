@@ -1,6 +1,8 @@
 <?php
-function get_sql_query() {
-    return "
+// queries.php
+
+function get_country_data($conn, $item_code) {
+    $sql = "
     SELECT 
         CASE 
             WHEN p.nombre = 'República Democrática Popular de Etiopía' THEN 'Etiopía'
@@ -31,10 +33,22 @@ function get_sql_query() {
         END
     ORDER BY ranking_2022;
     ";
+
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die('Error en la preparación de la consulta: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
+    }
+
+    $stmt->bind_param("s", $item_code);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    return $result;
 }
 
-function get_total_sql_query() {
-    return "
+function get_total_data($conn, $item_code) {
+    $total_sql = "
     SELECT 
         'Total' AS Pais,
         SUM(CASE WHEN f.year = 1961 THEN f.value ELSE 0 END) AS '1961',
@@ -50,4 +64,35 @@ function get_total_sql_query() {
         AND f.element_code = '5510'
         AND f.area_code = 5000;
     ";
+
+    $stmt_total = $conn->prepare($total_sql);
+    if ($stmt_total === false) {
+        die('Error en la preparación de la consulta de total: ' . htmlspecialchars($conn->error, ENT_QUOTES, 'UTF-8'));
+    }
+
+    $stmt_total->bind_param("s", $item_code);
+    $stmt_total->execute();
+    $result_total = $stmt_total->get_result();
+    $stmt_total->close();
+
+    return $result_total;
 }
+
+function format_value($value) {
+    if (is_null($value) || $value === '') {
+        return ['value' => '-', 'sort' => null];
+    }
+    $value = str_replace(',', '', $value);  // Remover comas si existen
+    $value = floatval($value) / 1000;
+
+    if ($value < 0.1) {
+        return ['value' => '<0.1', 'sort' => '0.01'];
+    } elseif ($value < 1) {
+        return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
+    } elseif ($value >= 1 && $value < 10000) {
+        return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
+    } else {
+        return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
+    }
+}
+?>
