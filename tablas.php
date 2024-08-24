@@ -32,6 +32,25 @@
     $stmt_name->fetch();
     $stmt_name->close();
 
+// Consulta para obtener el mayor productor en 2022
+$top_producer_query = "
+    SELECT 
+        Pais, 
+        `2022`, 
+        (SELECT SUM(`2022`) FROM RankedData) AS total_production,
+        ROUND((`2022` / (SELECT SUM(`2022`) FROM RankedData)) * 100, 2) AS percentage
+    FROM RankedData
+    ORDER BY `2022` DESC
+    LIMIT 1;
+";
+
+$stmt_top_producer = $conn->prepare($top_producer_query);
+$stmt_top_producer->execute();
+$result_top_producer = $stmt_top_producer->get_result();
+$top_producer = $result_top_producer->fetch_assoc();
+$stmt_top_producer->close();
+
+
     $page_title = "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8') . " | FAOWIKI";
     echo "<title>$page_title</title>";
     ?>
@@ -74,6 +93,19 @@
 <body>
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
+
+            <?php
+    // Mostrar el texto dinámicamente
+    if ($top_producer) {
+        $producto = htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8');
+        $año = 2022;
+        $toneladas = number_format(floatval($top_producer['`2022`']) / 1000, 0, '.', ',');
+        $pais = htmlspecialchars($top_producer['Pais'], ENT_QUOTES, 'UTF-8');
+        $porcentaje = htmlspecialchars($top_producer['percentage'], ENT_QUOTES, 'UTF-8');
+
+        echo "<p>Esta es una lista histórica de países por producción de $producto, basada en los datos de la Organización de las Naciones Unidas para la Alimentación y la Agricultura. La producción mundial total de $producto en $año era de $toneladas toneladas. $pais es el mayor productor, representando el $porcentaje% de la producción mundial. Los territorios dependientes son mostrados en cursiva.</p>";
+    }
+    ?>
 
         <div class="table-container">
             <?php
