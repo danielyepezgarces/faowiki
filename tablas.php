@@ -59,6 +59,11 @@
             text-align: center; /* Centrar el header */
             margin: 25px 0; /* Añadir margen superior e inferior */
         }
+        .info-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         footer {
             background-color: #f8f9fa;
             padding: 20px 0;
@@ -77,6 +82,13 @@
 <body>
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
+
+        <div class="info-text">
+            <!-- Aquí puedes incluir el texto de información -->
+            <?php
+            echo "Esta tabla muestra la producción histórica mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8') . " desde 1961 hasta 2022. Los datos se expresan en miles de toneladas métricas.";
+            ?>
+        </div>
 
         <div class="table-container">
             <?php
@@ -194,50 +206,40 @@
             $ranking = 1; // Contador para el ranking
 
             while ($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td>
-                        <td>";
+                echo "<tr>";
+                echo "<td>{$ranking}</td>"; // Columna para el ranking
+                echo "<td>" . htmlspecialchars($row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
 
-                switch ($row['Pais']) {
-                    case 'Bélgica-Luxemburgo':
-                        echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
-                        break;
-                    default:
-                        echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
-                        break;
-                }
-
-                echo "</td>";
-
-                $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
-                foreach ($years as $year) {
-                    $formatted_value = format_value($row[$year] ?? '');
-                    $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
-                    echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+                foreach (['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'] as $year) {
+                    $formatted = format_value($row[$year]);
+                    echo "<td data-sort-value='" . ($formatted['sort'] ?? '') . "'>" . $formatted['value'] . "</td>";
                 }
 
                 echo "</tr>";
+
+                $ranking++; // Incrementar el ranking después de cada fila
             }
 
-            // Mostrar la fila 'Total' si existe
+            $stmt->close();
+
+            // Mostrar los totales
             if ($result_total->num_rows > 0) {
-                $total_row = $result_total->fetch_assoc();
-                echo "<tr class='table-footer'>
-                        <td></td> <!-- Columna de ranking vacía para la fila 'Total' -->
-                        <td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+                while ($total_row = $result_total->fetch_assoc()) {
+                    echo "<tr class='table-footer'>";
+                    echo "<td></td>"; // Columna vacía para el ranking en la fila de total
+                    echo "<td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
 
-                foreach ($years as $year) {
-                    $formatted_value = format_value($total_row[$year] ?? '');
-                    echo "<td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+                    foreach (['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'] as $year) {
+                        $formatted_total = format_value($total_row[$year]);
+                        echo "<td data-sort-value='" . ($formatted_total['sort'] ?? '') . "'>" . $formatted_total['value'] . "</td>";
+                    }
+
+                    echo "</tr>";
                 }
-
-                echo "</tr>";
             }
 
             echo "</tbody></table>";
 
-            // Cierre de conexiones
-            $stmt->close();
             $stmt_total->close();
             $conn->close();
             ?>
@@ -245,7 +247,7 @@
     </div>
 
     <footer>
-        <p>&copy; <?php echo date("Y"); ?> FAOWIKI. Todos los derechos reservados.</p>
+        <p>&copy; 2024 FAOWIKI - Desarrollado por Danielyepezgarces (usuario de Wikipedia en español) - Datos de la FAO bajo licencia CC BY SA.</p>
     </footer>
 
     <!-- Bootstrap JS -->
