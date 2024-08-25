@@ -6,9 +6,7 @@
     <title><?php echo $page_title; ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Custom styles here */
-    </style>
+    <link href="/css/tables.css" rel="stylesheet">
 </head>
 <body>
     <div class="content">
