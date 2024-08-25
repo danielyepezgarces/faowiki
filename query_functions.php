@@ -117,8 +117,10 @@ function get_highest_producer($conn, $item_code, $year) {
 function get_highest_producer_percentage($conn, $item_code, $year) {
     $total_production = get_total_production($conn, $item_code, $year);
     $highest_producer_production = get_highest_producer_production($conn, $item_code, $year);
-    return ($highest_producer_production / $total_production) * 100;
+    $percentage = ($highest_producer_production / $total_production) * 100;
+    return round($percentage, 2);
 }
+
 
 
 function get_highest_producer_production($conn, $item_code) {
