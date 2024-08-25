@@ -74,4 +74,44 @@ function get_total($conn, $item_code) {
     $stmt_total->close();
     return $result_total;
 }
+
+function get_total_production($conn, $item_code, $year) {
+    $total_production_query = "SELECT SUM(value) FROM faowiki WHERE item_code = ? AND year = ? AND area_code = 5000";
+    $stmt_total_production = $conn->prepare($total_production_query);
+    $stmt_total_production->bind_param("ss", $item_code, $year);
+    $stmt_total_production->execute();
+    $stmt_total_production->bind_result($total_production);
+    $stmt_total_production->fetch();
+    $stmt_total_production->close();
+    return $total_production;
+}
+
+function get_highest_producer($conn, $item_code, $year) {
+    $highest_producer_query = "SELECT p.nombre FROM faowiki f JOIN paises p ON f.area_code = p.area_code WHERE f.item_code = ? AND f.year = ? ORDER BY f.value DESC LIMIT 1";
+    $stmt_highest_producer = $conn->prepare($highest_producer_query);
+    $stmt_highest_producer->bind_param("ss", $item_code, $year);
+    $stmt_highest_producer->execute();
+    $stmt_highest_producer->bind_result($highest_producer);
+    $stmt_highest_producer->fetch();
+    $stmt_highest_producer->close();
+    return $highest_producer;
+}
+
+function get_highest_producer_percentage($conn, $item_code, $year) {
+    $total_production = get_total_production($conn, $item_code, $year);
+    $highest_producer_production = get_highest_producer_production($conn, $item_code, $year);
+    return ($highest_producer_production / $total_production) * 100;
+}
+
+function get_highest_producer_production($conn, $item_code, $year) {
+    $highest_producer_production_query = "SELECT f.value FROM faowiki f JOIN paises p ON f.area_code = p.area_code WHERE f.item_code = ? AND f.year = ? ORDER BY f.value DESC LIMIT 1";
+    $stmt_highest_producer_production = $conn->prepare($highest_producer_production_query);
+    $stmt_highest_producer_production->bind_param("ss", $item_code, $year);
+    $stmt_highest_producer_production->execute();
+    $stmt_highest_producer_production->bind_result($highest_producer_production);
+    $stmt_highest_producer_production->fetch();
+    $stmt_highest_producer_production->close();
+    return $highest_producer_production;
+}
+
 ?>
