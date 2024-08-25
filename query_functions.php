@@ -98,7 +98,7 @@ function get_highest_producer($conn, $item_code, $year) {
     $highest_producer_query = "
         SELECT p.nombre
         FROM faowiki f
-        JOIN countries p ON f.area_code = p.area_code
+        JOIN paises p ON f.area_code = p.area_code
         WHERE f.item_code = ?
             AND f.year = ?
             AND f.area_code != 5000
