@@ -1,5 +1,6 @@
 <?php
-include 'query_functions.php';
+error_reporting( -1 );
+ini_set( 'display_errors', 1 );
 
 // Fetch additional data for the text
 $lastyear = 2022; // Replace with actual value
