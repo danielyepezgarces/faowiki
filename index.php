@@ -43,7 +43,7 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <h1 class="text-center mb-4">Lista de Productos</h1>
+                <h4 class="text-center mb-4">Lista de Productos</h4>
                 <div class="list-group">
                     <?php
                     include 'config.php';
