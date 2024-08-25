@@ -7,6 +7,19 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .header h2 {
+            font-size: 1.25rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
         .product-item {
             margin-bottom: 10px;
             padding: 10px;
@@ -41,9 +54,13 @@
 </head>
 <body>
     <div class="container mt-5">
+        <div class="header">
+            <h1>FAOWIKI</h1>
+            <h2>Empowering Knowledge with FAO’s Global Data</h2>
+        </div>
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <h4 class="text-center mb-4">Lista de Productos</h4>
+                <h2 class="text-center mb-4">Lista de Productos</h2>
                 <div class="list-group">
                     <?php
                     include 'config.php';
@@ -81,7 +98,7 @@
                         // Mostrar cada nombre de producto como un enlace a tablas.php con el item_code
                         while ($row = $result->fetch_assoc()) {
                             $item_code = $row['item_code'];
-                            $item_name = $row['item_name'];
+                            $item_name = ucfirst($row['item_name']); // Convertir la primera letra a mayúscula
                             $wikipedia_page = $row['wikipedia_page'];
                             $wikidata_item = $row['wikidata_item'];
 
