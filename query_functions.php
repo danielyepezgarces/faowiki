@@ -117,13 +117,25 @@ function get_highest_producer_percentage($conn, $item_code, $year) {
     return ($highest_producer_production / $total_production) * 100;
 }
 
-function get_highest_producer_production($conn, $item_code, $year) {
-    $highest_producer_production_query = "SELECT f.value FROM faowiki f JOIN paises p ON f.area_code = p.area_code WHERE f.item_code = ? AND f.year = ? ORDER BY f.value DESC LIMIT 1";
-    $stmt_highest_producer_production = $conn->prepare($highest_producer_production_query);
-    $stmt_highest_producer_production->bind_param("ss", $item_code, $year);
-    $stmt_highest_producer_production->execute();
-    $stmt_highest_producer_production->bind_result($highest_producer_production);
-    $stmt_highest_producer_production->fetch();
-    $stmt_highest_producer_production->close();
-    return $highest_producer_production;
+function get_highest_producer_value($conn, $item_code, $year) {
+    $sql = "
+        SELECT
+            MAX(CASE WHEN f.year = ? THEN f.value END) AS value
+        FROM faowiki f
+        JOIN paises p ON f.area_code = p.area_code
+        WHERE f.item_code = ?
+            AND f.element_code = '5510'
+            AND (f.area_code < 1000 OR f.area_code = 5000)
+            AND f.area_code != 351
+            AND f.area_code != 5000
+        ORDER BY value DESC
+        LIMIT 1;
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $year, $item_code);
+    $stmt->execute();
+    $stmt->bind_result($value);
+    $stmt->fetch();
+    $stmt->close();
+    return $value;
 }
