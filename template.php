@@ -4,7 +4,12 @@ ini_set( 'display_errors', 1 );
 
 // Fetch additional data for the text
 $lastyear = 2022; // Replace with actual value
-$toneladas = get_total_production($conn, $item_code, $lastyear); // Replace with actual function
+
+$result_total = get_total($conn, $item_code);
+$row_total = $result_total->fetch_assoc();
+$total_production_2022 = $row_total['2022'];
+$toneladas = = $row_total['2022'];
+
 $highest_country = get_highest_producer($conn, $item_code, $lastyear); // Replace with actual function
 $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code, $lastyear); // Replace with actual function
 ?>
