@@ -96,7 +96,7 @@ function get_total_production($conn, $item_code, $year) {
 
 function get_highest_producer($conn, $item_code, $year) {
     $highest_producer_query = "
-        SELECT p.name
+        SELECT p.nombre
         FROM faowiki f
         JOIN countries p ON f.area_code = p.area_code
         WHERE f.item_code = ?
