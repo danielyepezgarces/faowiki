@@ -123,5 +123,3 @@ function get_highest_producer_production($conn, $item_code, $year) {
     $stmt_highest_producer_production->close();
     return $highest_producer_production;
 }
-
-?>
