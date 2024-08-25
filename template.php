@@ -13,7 +13,7 @@ $toneladas = $row_total['2022'];
 function get_highest_producer_percentage($conn, $item_code, $year) {
     $total_production = get_total_production($conn, $item_code, $year);
     $highest_producer_production = get_highest_producer_production($conn, $item_code, $year);
-    return ($highest_producer_production / $toneladas) * 100;
+    return ($highest_producer_production / $total_production) * 100;
 }
 
 $highest_country = get_highest_producer($conn, $item_code, $lastyear); // Replace with actual function
