@@ -20,6 +20,22 @@
             color: #6c757d;
             margin-bottom: 20px;
         }
+        .sticky-header {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .sticky-header a {
+            color: #007bff;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
         .product-item {
             margin-bottom: 10px;
             padding: 10px;
@@ -27,8 +43,8 @@
             border-radius: 5px;
         }
         .product-item a {
-            text-decoration: none; /* Eliminar subrayado de los enlaces */
-            color: #212529; /* Color de texto para los enlaces */
+            text-decoration: none;
+            color: #212529;
         }
         footer {
             background-color: #f8f9fa;
@@ -44,15 +60,21 @@
         }
         .product-links {
             font-size: 14px;
-            white-space: nowrap; /* Evita el salto de línea en los enlaces */
+            white-space: nowrap;
         }
         .btn-group {
             display: flex;
-            gap: 10px; /* Espacio entre los botones */
+            gap: 10px;
         }
     </style>
 </head>
 <body>
+    <!-- Sticky Header -->
+    <div class="sticky-header">
+        <a href="https://github.com/danielyepezgarces/faowiki" target="_blank">Source Code</a>
+        <a href="#" target="_blank">Documentation</a>
+    </div>
+
     <div class="container mt-5">
         <div class="header">
             <h1>FAOWIKI</h1>
