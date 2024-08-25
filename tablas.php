@@ -17,11 +17,6 @@
 
     $item_code = isset($_GET['item_code']) ? $_GET['item_code'] : '221'; // Default item_code
 
-// Llamada al archivo summary.php para obtener el texto
-$summary_url = "summary.php?item_code=" . urlencode($item_code);
-$summary = file_get_contents($summary_url);
-
-
     // Consulta para obtener el nombre del producto
     $item_name_query = "
         SELECT item_name
@@ -82,8 +77,6 @@ $summary = file_get_contents($summary_url);
 <body>
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
-
-        <p><?php echo nl2br(htmlspecialchars($summary)); ?></p>
 
         <div class="table-container">
             <?php
