@@ -98,6 +98,9 @@ function get_highest_producer($conn, $item_code, $year) {
         LIMIT 1
     ";
     $stmt_highest_producer = $conn->prepare($highest_producer_query);
+    if (!$stmt_highest_producer) {
+        die("Error: " . $conn->error);
+    }
     $stmt_highest_producer->bind_param("ss", $item_code, $year);
     $stmt_highest_producer->execute();
     $stmt_highest_producer->bind_result($highest_producer);
@@ -105,6 +108,7 @@ function get_highest_producer($conn, $item_code, $year) {
     $stmt_highest_producer->close();
     return $highest_producer;
 }
+
 
 
 function get_highest_producer_percentage($conn, $item_code, $year) {
