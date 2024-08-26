@@ -57,51 +57,48 @@ function htmlTableToMediaWiki($htmlTable) {
         return "<p>No rows found in the HTML table.</p>";
     }
 
-    foreach ($rows as $row) {
-        $isTotalRow = false;
-    
-        // Primero, verifica si la fila contiene "Total"
-        foreach ($row->childNodes as $cell) {
-            if ($cell->nodeType === XML_ELEMENT_NODE) {
-                $cellText = trim($cell->textContent);
-                if (strtolower($cellText) === "total") {
-                    $isTotalRow = true;
-                    break; // Si encontramos "Total", no necesitamos seguir verificando esta fila
-                }
-            }
-        }
-    
-        $mediaWikiTable .= "|-\n";
-    
-        foreach ($row->childNodes as $index => $cell) {
-            if ($cell->nodeType === XML_ELEMENT_NODE) {
-                $cellText = trim($cell->textContent);
-                $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
-                $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
-    
-                if ($isTotalRow && $index == 0) {
-                    // No agregar celda vacía si es la primera en la fila "Total"
-                    continue;
-                }
-    
-                if ($isTotalRow && strtolower($cellText) === "total") {
-                    $mediaWikiTable .= "| colspan=\"2\" | " . $cellText . "\n";
-                } else {
-                    if ($cell->tagName === 'th') {
-                        $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
-                    } elseif ($cell->tagName === 'td') {
+    // Asegúrate de que `$rows` contenga los datos y `$total` tenga la fila de total
+foreach ($rows as $row) {
+    $mediaWikiTable .= "|-\n";
+
+    $isTotalRow = false;
+
+    foreach ($row->childNodes as $index => $cell) {
+        if ($cell->nodeType === XML_ELEMENT_NODE) {
+            $cellText = trim($cell->textContent);
+            $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
+            $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
+
+            if (strtolower($cellText) === "total") {
+                $isTotalRow = true;
+                $mediaWikiTable .= "| colspan=\"2\" | " . $cellText . "\n";
+            } else {
+                if ($cell->tagName === 'th') {
+                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
+                } elseif ($cell->tagName === 'td') {
+                    if ($isTotalRow && $index == 0) {
+                        // No agregar celda vacía si es la primera en la fila "Total"
+                        continue;
+                    }
+
+                    // Solo agregar la celda si no estamos en la fila "Total" o si no es la primera celda en "Total"
+                    if (!$isTotalRow) {
                         if ($sortAttribute) {
                             $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
                         } else {
                             $mediaWikiTable .= "| " . $cellText . "\n";
                         }
+                    } else {
+                        // Agregar las celdas restantes después de "Total"
+                        $mediaWikiTable .= "| " . $cellText . "\n";
                     }
                 }
             }
         }
     }
-    
-    $mediaWikiTable .= "|}";    
+}
+
+$mediaWikiTable .= "|}";   
     
     return $mediaWikiTable;
 }
