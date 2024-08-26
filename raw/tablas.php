@@ -60,23 +60,32 @@ function htmlTableToMediaWiki($htmlTable) {
     foreach ($rows as $row) {
         $mediaWikiTable .= "|-\n";
     
+        $isTotalRow = false;
+    
         foreach ($row->childNodes as $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
                 $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
     
-                // Verificar si es la fila "Total"
+                // Verificar si es la celda "Total"
                 if (strtolower($cellText) === "total") {
+                    $isTotalRow = true;
                     $mediaWikiTable .= "| colspan=\"2\" | " . $cellText . "\n";
                 } else {
                     // Formato para separar el atributo y el contenido de la celda
                     if ($cell->tagName === 'th') {
                         $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                     } elseif ($cell->tagName === 'td') {
-                        if ($sortAttribute) {
-                            $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                        // Solo agregar la celda si no estamos en la fila "Total"
+                        if (!$isTotalRow) {
+                            if ($sortAttribute) {
+                                $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                            } else {
+                                $mediaWikiTable .= "| " . $cellText . "\n";
+                            }
                         } else {
+                            // Agregar las celdas restantes después de "Total"
                             $mediaWikiTable .= "| " . $cellText . "\n";
                         }
                     }
@@ -85,7 +94,7 @@ function htmlTableToMediaWiki($htmlTable) {
         }
     }
     
-    $mediaWikiTable .= "|}";    
+    $mediaWikiTable .= "|}";      
     return $mediaWikiTable;
 }
 
