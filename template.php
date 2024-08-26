@@ -99,8 +99,8 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
                 $total_row = $total->fetch_assoc();
                 echo "<tr class='table-footer'>";
                 
-                // Crea una celda con colspan="2" para unificar las dos primeras celdas
-                echo "<td colspan='2'>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+                // Crear una celda con colspan="2" y alinear el texto al centro usando el atributo align
+                echo "<td colspan='2' align='center'>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
             
                 foreach ($years as $year) {
                     $formatted_value = format_value($total_row[$year] ?? '');
@@ -108,7 +108,8 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
                 }
             
                 echo "</tr>";
-            }            
+            }
+                    
 
             echo "</tbody></table>";
             ?>
