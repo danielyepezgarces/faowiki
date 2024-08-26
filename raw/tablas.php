@@ -129,7 +129,7 @@ if ($itemCode) {
         $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
         
         // Add the entradilla content before the table
-        echo $entradilla . "\n\n== Tabla ==" . $mediaWikiTable;
+        echo $entradilla . "\n\n== Tabla ==\n" . $mediaWikiTable;
     } else {
         echo "Failed to retrieve HTML content from the URL.";
     }
