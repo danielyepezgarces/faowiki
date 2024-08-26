@@ -9,7 +9,7 @@ $result_total = get_total($conn, $item_code);
 $row_total = $result_total->fetch_assoc();
 $total_production_2022 = $row_total['2022'];
 $toneladasvalue = $row_total['2022'];
-$toneladas = number_format($toneladas, 0, '', ',');
+$toneladas = number_format($toneladasvalue, 0, '', ',');
 
 $highest_country = get_highest_producer($conn, $item_code, $lastyear); // Replace with actual function
 $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code, $lastyear); // Replace with actual function
