@@ -50,7 +50,7 @@ function htmlTableToMediaWiki($htmlTable) {
     $dom = new DOMDocument;
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlTable); // Force UTF-8
 
-    $mediaWikiTable = "{| class=\"wikitable sortable\"\n"; // Add sortable class
+    $mediaWikiTable = "{| class=\"wikitable sortable col3der col4der col5der col6der col7der col8der col9der col10der\"\n";
 
     $rows = $dom->getElementsByTagName('tr');
     if ($rows->length === 0) {
