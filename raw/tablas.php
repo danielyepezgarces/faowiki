@@ -129,7 +129,7 @@ if ($itemCode) {
         $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
         
         // Add the entradilla content before the table
-        echo $entradilla . "\n\n== Tabla ==\n" . $mediaWikiTable . "\n\n== Referencias ==\n<references />\n\n[[Categoría:Anexos:Producción mundial de alimentos]]";
+        echo $entradilla . "\n\n== Tabla ==\n" . $mediaWikiTable . "\n\n== Referencias ==\n{{listaref}}\n\n[[Categoría:Anexos:Producción mundial de alimentos]]";
     } else {
         echo "Failed to retrieve HTML content from the URL.";
     }
