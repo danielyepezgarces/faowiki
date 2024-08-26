@@ -58,32 +58,42 @@ function htmlTableToMediaWiki($htmlTable) {
     }
 
     foreach ($rows as $row) {
-        $mediaWikiTable .= "|-\n";
-    
         $isTotalRow = false;
     
-        foreach ($row->childNodes as $index => $cell) {  // Añadimos $index para controlar la posición
+        // Primero, verifica si la fila contiene "Total"
+        foreach ($row->childNodes as $cell) {
+            if ($cell->nodeType === XML_ELEMENT_NODE) {
+                $cellText = trim($cell->textContent);
+                if (strtolower($cellText) === "total") {
+                    $isTotalRow = true;
+                    break; // Si encontramos "Total", no necesitamos seguir verificando esta fila
+                }
+            }
+        }
+    
+        $mediaWikiTable .= "|-\n";
+    
+        foreach ($row->childNodes as $index => $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
                 $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
     
-                // Verificar si es la celda "Total"
-                if (strtolower($cellText) === "total") {
-                    $isTotalRow = true;
+                if ($isTotalRow && $index == 0) {
+                    // No agregar celda vacía si es la primera en la fila "Total"
+                    continue;
+                }
+    
+                if ($isTotalRow && strtolower($cellText) === "total") {
                     $mediaWikiTable .= "| colspan=\"2\" | " . $cellText . "\n";
                 } else {
-                    // Formato para separar el atributo y el contenido de la celda
                     if ($cell->tagName === 'th') {
                         $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                     } elseif ($cell->tagName === 'td') {
-                        // Evitar agregar celdas si estamos en la fila "Total" y es la primera celda
-                        if (!$isTotalRow || $index > 0) {
-                            if ($sortAttribute) {
-                                $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
-                            } else {
-                                $mediaWikiTable .= "| " . $cellText . "\n";
-                            }
+                        if ($sortAttribute) {
+                            $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                        } else {
+                            $mediaWikiTable .= "| " . $cellText . "\n";
                         }
                     }
                 }
@@ -91,7 +101,7 @@ function htmlTableToMediaWiki($htmlTable) {
         }
     }
     
-    $mediaWikiTable .= "|}";
+    $mediaWikiTable .= "|}";    
     
     return $mediaWikiTable;
 }
