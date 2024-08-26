@@ -62,7 +62,7 @@ function htmlTableToMediaWiki($htmlTable) {
     
         $isTotalRow = false;
     
-        foreach ($row->childNodes as $cell) {
+        foreach ($row->childNodes as $index => $cell) {  // Añadimos $index para controlar la posición
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
@@ -77,16 +77,13 @@ function htmlTableToMediaWiki($htmlTable) {
                     if ($cell->tagName === 'th') {
                         $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                     } elseif ($cell->tagName === 'td') {
-                        // Solo agregar la celda si no estamos en la fila "Total"
-                        if (!$isTotalRow) {
+                        // Evitar agregar celdas si estamos en la fila "Total" y es la primera celda
+                        if (!$isTotalRow || $index > 0) {
                             if ($sortAttribute) {
                                 $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
                             } else {
                                 $mediaWikiTable .= "| " . $cellText . "\n";
                             }
-                        } else {
-                            // Agregar las celdas restantes después de "Total"
-                            $mediaWikiTable .= "| " . $cellText . "\n";
                         }
                     }
                 }
@@ -94,7 +91,8 @@ function htmlTableToMediaWiki($htmlTable) {
         }
     }
     
-    $mediaWikiTable .= "|}";      
+    $mediaWikiTable .= "|}";
+    
     return $mediaWikiTable;
 }
 
