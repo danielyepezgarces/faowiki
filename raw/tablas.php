@@ -71,8 +71,8 @@ foreach ($rows as $row) {
 
             if (strtolower($cellText) === "total") {
                 $isTotalRow = true;
-                $mediaWikiTable .= "| colspan=\"2\" | " . $cellText . "\n";
-            } else {
+                $mediaWikiTable .= "| colspan=\"2\" style=\"text-align: center;\" | " . $cellText . "\n";
+                } else {
                 if ($cell->tagName === 'th') {
                     $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
                 } elseif ($cell->tagName === 'td') {
