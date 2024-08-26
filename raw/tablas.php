@@ -33,17 +33,30 @@ function getHtmlTableFromUrl($url) {
     return $htmlContent;
 }
 
-function extractFirstTable($htmlContent) {
+function extractContent($htmlContent) {
     $dom = new DOMDocument;
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent); // Force UTF-8
 
+    // Extract the first paragraph with the class 'entradilla'
+    $paragraphs = $dom->getElementsByTagName('p');
+    $entradilla = '';
+    foreach ($paragraphs as $paragraph) {
+        if ($paragraph->hasAttribute('class') && $paragraph->getAttribute('class') === 'entradilla') {
+            $entradilla = trim($paragraph->textContent);
+            break;
+        }
+    }
+
+    // Extract the first table from the HTML content
     $tables = $dom->getElementsByTagName('table');
     if ($tables->length > 0) {
         $table = $tables->item(0);
-        return $dom->saveHTML($table);
+        $tableHtml = $dom->saveHTML($table);
     } else {
-        return '<p>No table found in the HTML content.</p>';
+        $tableHtml = '<p>No table found in the HTML content.</p>';
     }
+
+    return ['entradilla' => $entradilla, 'tableHtml' => $tableHtml];
 }
 
 function htmlTableToMediaWiki($htmlTable) {
@@ -57,48 +70,44 @@ function htmlTableToMediaWiki($htmlTable) {
         return "<p>No rows found in the HTML table.</p>";
     }
 
-    // Asegúrate de que `$rows` contenga los datos y `$total` tenga la fila de total
-foreach ($rows as $row) {
-    $mediaWikiTable .= "|-\n";
+    foreach ($rows as $row) {
+        $mediaWikiTable .= "|-\n";
 
-    $isTotalRow = false;
+        $isTotalRow = false;
 
-    foreach ($row->childNodes as $index => $cell) {
-        if ($cell->nodeType === XML_ELEMENT_NODE) {
-            $cellText = trim($cell->textContent);
-            $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
-            $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
+        foreach ($row->childNodes as $index => $cell) {
+            if ($cell->nodeType === XML_ELEMENT_NODE) {
+                $cellText = trim($cell->textContent);
+                $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
+                $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
 
-            if (strtolower($cellText) === "total") {
-                $isTotalRow = true;
-                $mediaWikiTable .= "| colspan=\"2\" style=\"text-align: center;\" | " . $cellText . "\n";
+                if (strtolower($cellText) === "total") {
+                    $isTotalRow = true;
+                    $mediaWikiTable .= "| colspan=\"2\" style=\"text-align: center;\" | " . $cellText . "\n";
                 } else {
-                if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
-                } elseif ($cell->tagName === 'td') {
-                    if ($isTotalRow && $index == 0) {
-                        // No agregar celda vacía si es la primera en la fila "Total"
-                        continue;
-                    }
+                    if ($cell->tagName === 'th') {
+                        $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
+                    } elseif ($cell->tagName === 'td') {
+                        if ($isTotalRow && $index == 0) {
+                            continue;
+                        }
 
-                    // Solo agregar la celda si no estamos en la fila "Total" o si no es la primera celda en "Total"
-                    if (!$isTotalRow) {
-                        if ($sortAttribute) {
-                            $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                        if (!$isTotalRow) {
+                            if ($sortAttribute) {
+                                $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                            } else {
+                                $mediaWikiTable .= "| " . $cellText . "\n";
+                            }
                         } else {
                             $mediaWikiTable .= "| " . $cellText . "\n";
                         }
-                    } else {
-                        // Agregar las celdas restantes después de "Total"
-                        $mediaWikiTable .= "| " . $cellText . "\n";
                     }
                 }
             }
         }
     }
-}
 
-$mediaWikiTable .= "|}";   
+    $mediaWikiTable .= "|}";   
     
     return $mediaWikiTable;
 }
@@ -107,19 +116,20 @@ $mediaWikiTable .= "|}";
 $itemCode = isset($_GET['item_code']) ? $_GET['item_code'] : '';
 
 if ($itemCode) {
-    // Construct the URL with the item_code
     $url = "https://faowiki.toolforge.org/tablas.php?item_code=$itemCode";
 
-    // Get the HTML content from the URL
     $htmlContent = getHtmlTableFromUrl($url);
 
     if ($htmlContent) {
-        // Extract the first table from the HTML content
-        $htmlTable = extractFirstTable($htmlContent);
+        $content = extractContent($htmlContent);
 
-        // Convert the HTML table to MediaWiki format
+        $entradilla = $content['entradilla'];
+        $htmlTable = $content['tableHtml'];
+
         $mediaWikiTable = htmlTableToMediaWiki($htmlTable);
-        echo $mediaWikiTable;
+        
+        // Add the entradilla content before the table
+        echo "'''" . $entradilla . "'''\n\n" . $mediaWikiTable;
     } else {
         echo "Failed to retrieve HTML content from the URL.";
     }
