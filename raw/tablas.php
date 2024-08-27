@@ -71,32 +71,43 @@ function htmlTableToMediaWiki($htmlTable) {
     }
 
     foreach ($rows as $row) {
+        $isTotalRow = false;
         $mediaWikiTable .= "|-\n";
 
-        foreach ($row->childNodes as $cell) {
+        foreach ($row->childNodes as $index => $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
                 $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
 
-                // Formato para separar el atributo y el contenido de la celda
-                if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
-                } elseif ($cell->tagName === 'td') {
-                    // Solo agregar el atributo si hay un valor de `data-sort-value`
-                    if ($sortAttribute) {
-                        $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
-                    } else {
-                        $mediaWikiTable .= "| " . $cellText . "\n";
+                if (strtolower($cellText) === "total") {
+                    $isTotalRow = true;
+                    $mediaWikiTable .= "| " . $sortAttribute . " class=\"sortbottom\" | " . $cellText . "\n";
+                } else {
+                    if ($cell->tagName === 'th') {
+                        $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
+                    } elseif ($cell->tagName === 'td') {
+                        if ($sortAttribute) {
+                            $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                        } else {
+                            $mediaWikiTable .= "| " . $cellText . "\n";
+                        }
                     }
                 }
             }
         }
+
+        // Close row with class `sortbottom` if it's the total row
+        if ($isTotalRow) {
+            $mediaWikiTable .= "|-\n";
+        }
     }
 
-    $mediaWikiTable .= "|}";
+    $mediaWikiTable .= "|}";   
+    
     return $mediaWikiTable;
 }
+
 
 // Get the item_code from the URL query parameter
 $itemCode = isset($_GET['item_code']) ? $_GET['item_code'] : '';
