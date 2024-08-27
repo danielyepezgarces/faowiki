@@ -128,7 +128,7 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
 
     <script>
 document.getElementById('copyButton').addEventListener('click', async function() {
-    const itemCode = '<?php echo $item_code; ?>'; // Reemplaza esto con el valor real de item_code
+    const itemCode = '<?php echo $item_code; ?>'; // Inserta el valor de PHP en el JavaScript
     const url = `https://faowiki.toolforge.org/raw/tablas.php?item_code=${itemCode}`;
 
     try {
@@ -138,13 +138,15 @@ document.getElementById('copyButton').addEventListener('click', async function()
         }
         const text = await response.text();
         
+        // Aquí se debe ejecutar la operación de copiar al portapapeles
         await navigator.clipboard.writeText(text);
         alert('Contenido copiado al portapapeles.');
     } catch (error) {
-        alert('Error al copiar el contenido: ' + error);
+        alert('Error al copiar el contenido: ' + error.message);
     }
 });
 </script>
+
 
 
     <!-- Bootstrap JS -->
