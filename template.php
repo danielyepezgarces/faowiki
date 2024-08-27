@@ -70,15 +70,48 @@ function format_value($value) {
 }
 
 $ranking = 1;
+$countries_with_production = [];
+$countries_without_production = [];
 
 while ($row = $data->fetch_assoc()) {
-    // Revisar si el valor para 2022 es nulo o negativo
     if (is_null($row['2022']) || floatval($row['2022']) <= 0) {
-        continue; // Saltar esta iteración si no hay producción en 2022
+        $countries_without_production[] = $row;
+    } else {
+        $countries_with_production[] = $row;
     }
+}
 
+// Mostrar países con producción en 2022
+foreach ($countries_with_production as $row) {
     echo "<tr>
             <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td>
+            <td>";
+
+    switch ($row['Pais']) {
+        case 'Bélgica-Luxemburgo':
+            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
+            break;
+        default:
+            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
+            break;
+    }
+
+    echo "</td>";
+
+    $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
+    foreach ($years as $year) {
+        $formatted_value = format_value($row[$year] ?? '');
+        $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
+        echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+    }
+
+    echo "</tr>";
+}
+
+// Mostrar países sin producción en 2022 (ranking vacío)
+foreach ($countries_without_production as $row) {
+    echo "<tr>
+            <td></td> <!-- Celda de ranking vacía -->
             <td>";
 
     switch ($row['Pais']) {
@@ -118,6 +151,7 @@ if ($total->num_rows > 0) {
 
 echo "</tbody></table>";
 ?>
+
 
         </div>
     </div>
