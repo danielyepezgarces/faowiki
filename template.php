@@ -118,9 +118,34 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
         </div>
     </div>
 
+    <button id="copyButton" style="position: fixed; bottom: 20px; right: 20px; background-color: #007BFF; color: white; border: none; border-radius: 50%; padding: 15px; cursor: pointer;">
+        <i class="fas fa-clipboard"></i>
+    </button>
+
     <footer>
         <p>&copy; <?php echo date("Y"); ?> FAOWIKI. Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+document.getElementById('copyButton').addEventListener('click', async function() {
+    const itemCode = '<?php echo $item_code; ?>'; // Reemplaza esto con el valor real de item_code
+    const url = `https://faowiki.toolforge.org/raw/tablas.php?item_code=${itemCode}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Error en la solicitud: ' + response.statusText);
+        }
+        const text = await response.text();
+        
+        await navigator.clipboard.writeText(text);
+        alert('Contenido copiado al portapapeles.');
+    } catch (error) {
+        alert('Error al copiar el contenido: ' + error);
+    }
+});
+</script>
+
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
