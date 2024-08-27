@@ -63,7 +63,7 @@ function htmlTableToMediaWiki($htmlTable) {
     $dom = new DOMDocument;
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlTable); // Force UTF-8
 
-    $mediaWikiTable = "{| class=\"wikitable sortable col3der col4der col5der col6der col7der col8der col9der col10der\"\n";
+    $mediaWikiTable = "{| class=\"wikitable sortable\"\n"; // Add sortable class
 
     $rows = $dom->getElementsByTagName('tr');
     if ($rows->length === 0) {
@@ -73,42 +73,28 @@ function htmlTableToMediaWiki($htmlTable) {
     foreach ($rows as $row) {
         $mediaWikiTable .= "|-\n";
 
-        $isTotalRow = false;
-
-        foreach ($row->childNodes as $index => $cell) {
+        foreach ($row->childNodes as $cell) {
             if ($cell->nodeType === XML_ELEMENT_NODE) {
                 $cellText = trim($cell->textContent);
                 $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
                 $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
 
-                if (strtolower($cellText) === "total") {
-                    $isTotalRow = true;
-                    $mediaWikiTable .= "| colspan=\"2\" style=\"text-align: center;\" | " . $cellText . "\n";
-                } else {
-                    if ($cell->tagName === 'th') {
-                        $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
-                    } elseif ($cell->tagName === 'td') {
-                        if ($isTotalRow && $index == 0) {
-                            continue;
-                        }
-
-                        if (!$isTotalRow) {
-                            if ($sortAttribute) {
-                                $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
-                            } else {
-                                $mediaWikiTable .= "| " . $cellText . "\n";
-                            }
-                        } else {
-                            $mediaWikiTable .= "| " . $cellText . "\n";
-                        }
+                // Formato para separar el atributo y el contenido de la celda
+                if ($cell->tagName === 'th') {
+                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
+                } elseif ($cell->tagName === 'td') {
+                    // Solo agregar el atributo si hay un valor de `data-sort-value`
+                    if ($sortAttribute) {
+                        $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                    } else {
+                        $mediaWikiTable .= "| " . $cellText . "\n";
                     }
                 }
             }
         }
     }
 
-    $mediaWikiTable .= "|}";   
-    
+    $mediaWikiTable .= "|}";
     return $mediaWikiTable;
 }
 
