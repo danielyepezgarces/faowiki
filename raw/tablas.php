@@ -87,37 +87,37 @@ function htmlTableToMediaWiki($htmlTable) {
 
     // Process rows
     foreach ($rows as $index => $row) {
-        $isTotalRow = ($index === $totalRowIndex);
-        $mediaWikiTable .= "|-\n";
+        if ($index === $totalRowIndex) {
+            // Add the total row with the sortbottom class
+            $mediaWikiTable .= "|-\n";
+            $mediaWikiTable .= "| class=\"sortbottom\" | \n"; // Empty cell for the sortbottom class
+            foreach ($row->childNodes as $cell) {
+                if ($cell->nodeType === XML_ELEMENT_NODE) {
+                    $cellText = trim($cell->textContent);
+                    $mediaWikiTable .= "| " . $cellText . "\n";
+                }
+            }
+            $mediaWikiTable .= "|}\n";
+        } else {
+            // Process regular rows
+            $mediaWikiTable .= "|-\n";
+            foreach ($row->childNodes as $cell) {
+                if ($cell->nodeType === XML_ELEMENT_NODE) {
+                    $cellText = trim($cell->textContent);
+                    $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
+                    $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
 
-        foreach ($row->childNodes as $cell) {
-            if ($cell->nodeType === XML_ELEMENT_NODE) {
-                $cellText = trim($cell->textContent);
-                $sortValue = $cell->hasAttribute('data-sort-value') ? $cell->getAttribute('data-sort-value') : null;
-                $sortAttribute = $sortValue ? " data-sort-value=\"" . htmlspecialchars($sortValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\"" : "";
-
-                if ($cell->tagName === 'th') {
-                    $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
-                } elseif ($cell->tagName === 'td') {
-                    if ($sortAttribute) {
-                        $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
-                    } else {
-                        $mediaWikiTable .= "| " . $cellText . "\n";
+                    if ($cell->tagName === 'th') {
+                        $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
+                    } elseif ($cell->tagName === 'td') {
+                        if ($sortAttribute) {
+                            $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
+                        } else {
+                            $mediaWikiTable .= "| " . $cellText . "\n";
+                        }
                     }
                 }
             }
-        }
-
-        // Apply sortbottom class to the total row
-        if ($isTotalRow) {
-            $mediaWikiTable .= "|-\n";
-            $mediaWikiTable .= "| class=\"sortbottom\" | \n"; // Empty cell before "Total"
-            $mediaWikiTable .= "| Total\n";
-            $cellCount = $row->childNodes->length - 1; // Adjust for "Total" cell
-            for ($i = 0; $i < $cellCount; $i++) {
-                $mediaWikiTable .= "| " . ($row->childNodes->item($i + 1)->textContent ?? '') . "\n";
-            }
-            $mediaWikiTable .= "|}\n";
         }
     }
 
