@@ -82,7 +82,8 @@ function htmlTableToMediaWiki($htmlTable) {
 
                 if (strtolower($cellText) === "total") {
                     $isTotalRow = true;
-                    $mediaWikiTable .= "| " . $sortAttribute . " class=\"sortbottom\" | " . $cellText . "\n";
+                    // Apply the sortbottom class to the row
+                    $mediaWikiTable .= "| " . $sortAttribute . " | " . $cellText . "\n";
                 } else {
                     if ($cell->tagName === 'th') {
                         $mediaWikiTable .= "! " . $sortAttribute . " " . $cellText . "\n";
@@ -97,9 +98,9 @@ function htmlTableToMediaWiki($htmlTable) {
             }
         }
 
-        // Close row with class `sortbottom` if it's the total row
+        // Add sortbottom class to the entire row if it's the total row
         if ($isTotalRow) {
-            $mediaWikiTable .= "|-\n";
+            $mediaWikiTable .= "|- class=\"sortbottom\"\n";
         }
     }
 
