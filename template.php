@@ -69,6 +69,8 @@ echo "<table border='1' class='table table-striped'>
         </thead>
         <tbody>";
 
+
+
 $ranking = 1;
 $countries_without_production = [];
 
