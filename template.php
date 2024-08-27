@@ -30,7 +30,7 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
         <p class="entradilla" style="width: 62%; margin: 0 auto; padding-bottom: 25px;">
-        Esta es la evolución de la '''producción mundial de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?>''' según los datos de la [[Organización de las Naciones Unidas para la Alimentación y la Agricultura]] (FAO). En <?php echo $lastyear; ?>, el total mundial fue de <?php echo $toneladas; ?> toneladas, y el país con mayor producción fue <?php echo htmlspecialchars($highest_country, ENT_QUOTES, 'UTF-8'); ?>, con <?php echo $mayorprodtoneladas; ?> toneladas, el <?php echo $percentage_highest_producer; ?>% del total.
+        Esta es la evolución de la '''producción mundial de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?>'''en miles de toneladas, según los datos de la [[Organización de las Naciones Unidas para la Alimentación y la Agricultura]] (FAO). En <?php echo $lastyear; ?>, el total mundial fue de <?php echo formatted_value($toneladas); ?> toneladas, y el país con mayor producción fue <?php echo htmlspecialchars($highest_country, ENT_QUOTES, 'UTF-8'); ?>, con <?php echo formatted_value($mayorprodtoneladas); ?> toneladas, el <?php echo $percentage_highest_producer; ?>% del total.
         </p>
         <div class="table-container">
         <?php
