@@ -33,88 +33,92 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
         Esta es la evolución de la '''producción mundial de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?>''' según los datos de la [[Organización de las Naciones Unidas para la Alimentación y la Agricultura]] (FAO). En <?php echo $lastyear; ?>, el total mundial fue de <?php echo $toneladas; ?> toneladas, y el país con mayor producción fue <?php echo htmlspecialchars($highest_country, ENT_QUOTES, 'UTF-8'); ?>, con <?php echo $mayorprodtoneladas; ?> toneladas, el <?php echo $percentage_highest_producer; ?>% del total.
         </p>
         <div class="table-container">
-            <?php
-            echo "<table border='1' class='table table-striped'>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>País</th>
-                            <th>1961</th>
-                            <th>1970</th>
-                            <th>1980</th>
-                            <th>1990</th>
-                            <th>2000</th>
-                            <th>2010</th>
-                            <th>2020</th>
-                            <th>2022</th>
-                        </tr>
-                    </thead>
-                    <tbody>";
+        <?php
+echo "<table border='1' class='table table-striped'>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>País</th>
+                <th>1961</th>
+                <th>1970</th>
+                <th>1980</th>
+                <th>1990</th>
+                <th>2000</th>
+                <th>2010</th>
+                <th>2020</th>
+                <th>2022</th>
+            </tr>
+        </thead>
+        <tbody>";
 
-                    function format_value($value) {
-                        if (is_null($value) || $value === '') {
-                            return ['value' => '-', 'sort' => null];
-                        }
-                        $value = str_replace(',', '', $value);  // Remover comas si existen
-                        $value = floatval($value) / 1000;
-        
-                        if ($value < 0.1) {
-                            return ['value' => '<0.1', 'sort' => '0.01'];
-                        } elseif ($value < 1) {
-                            return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
-                        } elseif ($value >= 1 && $value < 10000) {
-                            return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
-                        } else {
-                            return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
-                        }
-                    }
+function format_value($value) {
+    if (is_null($value) || $value === '') {
+        return ['value' => '-', 'sort' => null];
+    }
+    $value = str_replace(',', '', $value);  // Remover comas si existen
+    $value = floatval($value) / 1000;
 
-            $ranking = 1;
+    if ($value < 0.1) {
+        return ['value' => '<0.1', 'sort' => '0.01'];
+    } elseif ($value < 1) {
+        return ['value' => number_format($value, 1, '.', ''), 'sort' => null]; // Un decimal
+    } elseif ($value >= 1 && $value < 10000) {
+        return ['value' => number_format($value, 0, '.', ''), 'sort' => null]; // Sin decimales y sin separador de miles
+    } else {
+        return ['value' => number_format($value, 0, '.', ' '), 'sort' => null]; // Sin decimales, con espacio como separador de miles
+    }
+}
 
-            while ($row = $data->fetch_assoc()) {
-                echo "<tr>
-                        <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td>
-                        <td>";
+$ranking = 1;
 
-                switch ($row['Pais']) {
-                    case 'Bélgica-Luxemburgo':
-                        echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
-                        break;
-                    default:
-                        echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
-                        break;
-                }
+while ($row = $data->fetch_assoc()) {
+    // Revisar si el valor para 2022 es nulo o negativo
+    if (is_null($row['2022']) || floatval($row['2022']) <= 0) {
+        continue; // Saltar esta iteración si no hay producción en 2022
+    }
 
-                echo "</td>";
+    echo "<tr>
+            <td>" . htmlspecialchars($ranking++, ENT_QUOTES, 'UTF-8') . "</td>
+            <td>";
 
-                $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
-                foreach ($years as $year) {
-                    $formatted_value = format_value($row[$year] ?? '');
-                    $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
-                    echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
-                }
+    switch ($row['Pais']) {
+        case 'Bélgica-Luxemburgo':
+            echo '{{Bandera|Bélgica}}{{Bandera|Luxemburgo}} [[Unión Económica Belgo-Luxemburguesa|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . ']]';
+            break;
+        default:
+            echo '{{Bandera2|' . htmlspecialchars(trim($row['Pais']), ENT_QUOTES, 'UTF-8') . '}}';
+            break;
+    }
 
-                echo "</tr>";
-            }
+    echo "</td>";
 
+    $years = ['1961', '1970', '1980', '1990', '2000', '2010', '2020', '2022'];
+    foreach ($years as $year) {
+        $formatted_value = format_value($row[$year] ?? '');
+        $sort_attribute = $formatted_value['sort'] ? " data-sort-value=\"" . htmlspecialchars($formatted_value['sort'], ENT_QUOTES, 'UTF-8') . "\"" : "";
+        echo "<td style='text-align:right; white-space: nowrap;'{$sort_attribute}>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+    }
 
-            if ($total->num_rows > 0) {
-                $total_row = $total->fetch_assoc();
-                echo "<tr class='table-footer'>
-                        <td></td>
-                        <td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
+    echo "</tr>";
+}
 
-                foreach ($years as $year) {
-                    $formatted_value = format_value($total_row[$year] ?? '');
-                    echo "<td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
-                }
+if ($total->num_rows > 0) {
+    $total_row = $total->fetch_assoc();
+    echo "<tr class='table-footer'>
+            <td></td>
+            <td>" . htmlspecialchars($total_row['Pais'], ENT_QUOTES, 'UTF-8') . "</td>";
 
-                echo "</tr>";
-            }
-                    
+    foreach ($years as $year) {
+        $formatted_value = format_value($total_row[$year] ?? '');
+        echo "<td style='text-align:right; white-space: nowrap;'>" . htmlspecialchars($formatted_value['value'], ENT_QUOTES, 'UTF-8') . "</td>";
+    }
 
-            echo "</tbody></table>";
-            ?>
+    echo "</tr>";
+}
+
+echo "</tbody></table>";
+?>
+
         </div>
     </div>
 
