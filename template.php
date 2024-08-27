@@ -24,7 +24,7 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
     <title><?php echo $page_title; ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/all.min.css">
     <link href="/css/tables.css" rel="stylesheet">
 </head>
 <body>
