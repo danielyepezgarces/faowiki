@@ -89,8 +89,7 @@ function htmlTableToMediaWiki($htmlTable) {
     foreach ($rows as $index => $row) {
         if ($index === $totalRowIndex) {
             // Add the total row with the sortbottom class
-            $mediaWikiTable .= "|-\n";
-            $mediaWikiTable .= "| class=\"sortbottom\" | \n"; // Empty cell for the sortbottom class
+            $mediaWikiTable .= "|- class=\"sortbottom\"\n";
             foreach ($row->childNodes as $cell) {
                 if ($cell->nodeType === XML_ELEMENT_NODE) {
                     $cellText = trim($cell->textContent);
