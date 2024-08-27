@@ -50,7 +50,7 @@
             background-color: #f8f9fa;
             padding: 20px 0;
             text-align: center;
-            position: fixed;
+            position: absolute;
             width: 100%;
             bottom: 0;
         }
@@ -153,32 +153,29 @@
                         echo '<div class="product-item">No hay productos disponibles.</div>';
                     }
 
+                    // Calcular el número total de páginas
+                    $sql_count = "
+                        SELECT COUNT(*) AS total_count
+                        FROM productos
+                        WHERE categoria = '5510'
+                          AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
+                          AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
+                    ";
+                    $result_count = $conn->query($sql_count);
+                    $total_count = $result_count->fetch_assoc()['total_count'];
+                    $total_pages = ceil($total_count / $results_per_page);
+
+                    // Mostrar enlaces de paginación
+                    echo '<nav aria-label="Navegación de páginas"><ul class="pagination justify-content-center mt-4">';
+                    for ($i = 1; $i <= $total_pages; $i++) {
+                        echo '<li class="page-item ' . ($page == $i ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                    }
+                    echo '</ul></nav>';
+
                     // Cerrar conexión
                     $conn->close();
                     ?>
                 </div>
-                <nav aria-label="Navegación de páginas">
-                    <ul class="pagination justify-content-center mt-4">
-                        <?php
-                        // Calcular el número total de páginas
-                        $sql_count = "
-                            SELECT COUNT(*) AS total_count
-                            FROM productos
-                            WHERE categoria = '5510'
-                              AND wikipedia_page IS NOT NULL AND TRIM(wikipedia_page) != ''
-                              AND wikidata_item IS NOT NULL AND TRIM(wikidata_item) != ''
-                        ";
-                        $result_count = $conn->query($sql_count);
-                        $total_count = $result_count->fetch_assoc()['total_count'];
-                        $total_pages = ceil($total_count / $results_per_page);
-
-                        // Mostrar enlaces de paginación
-                        for ($i = 1; $i <= $total_pages; $i++) {
-                            echo '<li class="page-item ' . ($page == $i ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
-                        }
-                        ?>
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>
