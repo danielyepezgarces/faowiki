@@ -7,6 +7,25 @@
     <!-- Bootstrap CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <style>
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+    width: 100%;
+}
+
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -46,14 +65,7 @@
             text-decoration: none;
             color: #212529;
         }
-        footer {
-            background-color: #f8f9fa;
-            padding: 20px 0;
-            text-align: center;
-            position: absolute;
-            width: 100%;
-            bottom: 0;
-        }
+
         footer p {
             margin: 0;
             font-size: 14px;
