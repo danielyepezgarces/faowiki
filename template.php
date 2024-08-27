@@ -9,7 +9,7 @@ $result_total = get_total($conn, $item_code);
 $row_total = $result_total->fetch_assoc();
 $total_production_2022 = $row_total['2022'];
 $toneladasvalue = $row_total['2022'];
-$toneladas = number_format($toneladasvalue, 0, '', ',');
+$toneladas = number_format($toneladasvalue, 0, '', ' ');
 
 $highest_country = get_highest_producer($conn, $item_code, $lastyear); // Replace with actual function
 $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code, $lastyear); // Replace with actual function
@@ -28,7 +28,7 @@ $percentage_highest_producer = get_highest_producer_percentage($conn, $item_code
     <div class="content">
         <h1><?php echo "Histórico producción mundial de " . htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?></h1>
         <p class="entradilla" style="width: 62%; margin: 0 auto; padding-bottom: 25px;">
-    Esta es una lista histórica de países por producción de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?>, basada en los datos de la Organización de las Naciones Unidas para la Alimentación y la Agricultura. La producción mundial total de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?> en <?php echo $lastyear; ?> era de <?php echo $toneladas; ?> toneladas. <?php echo htmlspecialchars($highest_country, ENT_QUOTES, 'UTF-8'); ?> es el mayor productor, representando el <?php echo $percentage_highest_producer; ?>% de la producción mundial.
+        Esta es la evolución de la '''producción mundial de <?php echo htmlspecialchars(strtolower($item_name), ENT_QUOTES, 'UTF-8'); ?>''' según los datos de la [[Organización de las Naciones Unidas para la Alimentación y la Agricultura]] (FAO). En <?php echo $lastyear; ?>, el total mundial fue de <?php echo $toneladas; ?> toneladas, y el país con mayor producción fue <?php echo htmlspecialchars($highest_country, ENT_QUOTES, 'UTF-8'); ?>, con # ### ### toneladas, el <?php echo $percentage_highest_producer; ?> % del total.
         </p>
         <div class="table-container">
             <?php
